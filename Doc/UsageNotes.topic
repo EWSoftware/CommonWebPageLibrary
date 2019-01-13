@@ -1,0 +1,366 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<!DOCTYPE bodyText [
+    <!ENTITY nbsp "&#160;">
+]>
+
+<topic xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+    <title>Usage Notes</title>
+    <styleSheet filename="Styles/Styles.css" />
+    <bodyText>
+<ul>
+<li><a href="#RevHist">Revision History</a></li>
+<li><a href="#Embed">Embedded Resources</a></li>
+<li><a href="#Compress">Script Compression</a></li>
+<li><a href="#UseAsm">Using the Assembly in Your Projects</a></li>
+<li><a href="#EWSCSS">EWSoftware.Web.css File</a></li>
+<li><a href="#UsePgClass">Using BasePage and Its Derived Classes In Your
+Own Applications</a></li>
+<li><a href="#NoStyles">No Styles In Design View</a></li>
+<li><a href="#IEWC">Microsoft Internet Explorer Web Control Awareness</a></li>
+</ul>
+<hr/>
+
+<h2>The Code Project</h2>
+More detailed descriptions about the features of these classes are
+available on <a href="http://www.codeproject.com">The Code Project</a> at
+the following links:
+
+<ul>
+    <li><a href="http://www.codeproject.com/KB/aspnet/EWSWebPt1.aspx"
+target="_blank">ASP.NET Common Web Page Class Library - Part 1</a></li>
+    <li><a href="http://www.codeproject.com/KB/aspnet/EWSWebPt2.aspx"
+target="_blank">ASP.NET Common Web Page Class Library - Part 2</a></li>
+    <li><a href="http://www.codeproject.com/KB/aspnet/EWSWebPt3.aspx"
+target="_blank">ASP.NET Common Web Page Class Library - Part 3</a></li>
+    <li><a href="http://www.codeproject.com/KB/aspnet/EWSWebPt4.aspx"
+target="_blank">ASP.NET Common Web Page Class Library - Part 4</a></li>
+</ul>
+
+<a class="Reference" name="RevHist"><h2>Revision History</h2></a>
+<div class="tablediv">
+<table class="dtTABLE" cellpadding="0" cellspacing="0" border="0">
+  <tr>
+    <td valign="top" width="100px">04/02/2006</td>
+    <td><b>2.0.0.0</b> - Non-breaking changes in this release:
+      <ul>
+        <li>The latest version of the JavaScript compressor is being used
+        to further reduce the size of the embedded scripts.</li>
+
+        <li>The .NET 2.0 demos have been reworked to use master pages
+        instead of <b>RenderedPage</b> and <b>MenuPage</b>.</li>
+
+        <li>For the .NET 2.0 version, the method of embedding the script
+        resources was changed to use the .NET 2.0 method so it is no longer
+        necessary to add the <b>httpHandlers</b> section for the
+        <i>EWSoftware.Web.aspx</i> resource page.  As such, this section
+        can be deleted from your <i>Web.config</i> file.</li>
+
+        <li>Reworked the URL encoding regular expression in PageUtils so
+        that it includes a few more protocols, includes all valid URL
+        characters, handles URLs with parameters, and does not include
+        special characters after the URL.</li>
+      </ul>
+
+      <b>Breaking changes:</b>
+      <ul>
+        <li>Significantly modified the <b>BasePage</b> class by splitting out the
+        rendering code to its own derived class (<b>RenderedPage</b>).  This makes
+        it easier to move to .NET 2.0 and use master pages while still
+        retaining the non-rendering related features of the <b>BasePage</b> class
+        (data change checking, etc).</li>
+
+        <li>The <b>EMailPage</b> class has been removed.  The
+        e-mailing functionality has been merged with the
+        <b>BasePage</b> class.  This was necessary in order to move
+        the rendering code into its own derived class.</li>
+
+        <li>In the .NET 2.0 version, the <b>EMailThisPageEventHandler</b>
+        and the <b>EMailErrorEventHandler</b> delegates have been
+        removed.  To add event handlers for these two events use the new .NET
+        2.0 EventHandler&lt;&gt; generic type instead.</li>
+
+        <li>Several properties and method names have been modified to
+        conform to the .NET naming conventions with regard to casing
+        (<b>BasePage.BypassPromptIds</b>,
+        <b>BasePage.DisabledCssClass</b>,
+        <b>BasePage.DisabledCssName</b>,
+        <b>BasePage.MsgLinkCssClass</b>,
+        <b>BasePage.MsgLinkCssName</b>,
+        <b>BasePage.SkipDataCheckIds</b>,
+        <b>EMailPageEventArgs.SmtpServer</b>,
+        <b>MenuPage.MenuCtrlFileName</b>,
+        <b>PageUtils.HtmlEncode</b>,
+        <b>RenderedPage.PageBodyCssClass</b>,
+        <b>RenderedPage.CssFileName</b>).</li>
+
+        <li>The <b>BasePage.SetFocus</b> methods have been renamed
+        <b>BasePage.SetFocusExtended</b>. In .NET 2.0, every web
+        control now has a <b>Focus</b> method.  In addition, the
+        standard <b>Page</b> class has two <b>SetFocus</b>
+        methods somewhat equivalent to the old <b>BasePage</b>
+        versions.  The <b>SetFocusExtended</b> methods are available
+        for use in .NET 1.1 to set the focus to controls and they are
+        available for use in the .NET 2.0 version in case you need the added
+        capabilities that they provide.</li>
+
+      </ul></td>
+  </tr>
+  <tr>
+    <td valign="top" width="100px">11/26/2004</td>
+    <td>New public release.  Version 1.1.0.0.</td>
+  </tr>
+  <tr>
+    <td valign="top" width="100px">08/10/2004</td>
+    <td>Fixed a bug in <b>BP_funSetFocus()</b> reported by Michael Freidgeim
+on CodeProject.com so that it finds controls by ID correctly if the ID happens
+to match a <b>NAME</b> attribute on a <b>META</b> tag.</td>
+  </tr>
+  <tr>
+    <td valign="top" width="100px">07/23/2004</td>
+    <td>Add the <b>RobotOptions</b> enumerated type and the properties
+        <b>PageDescription</b>, <b>PageKeywords</b>, and <b>Robots</b> to
+        the <b>BasePage</b> class.</td>
+  </tr>
+  <tr>
+    <td valign="top" width="100px">06/28/2004</td>
+    <td>Made some changes based on suggestions from Danny Dot Net on
+CodeProject.com to prevent the double prompt when posting back via a
+hyperlink-type control.  A few other changes were made that also eliminate
+the double prompt in almost all other situations as well.
+
+Fixed up a potential problem with the __EVENTTARGET variable not being
+cleared if post back is cancelled.<br/><br/>
+
+Removed the hard-coded class name and cell padding from the <b>MenuPage</b>
+class's generated HTML.  The menu user control should control the style and
+padding.<br/><br/>
+
+Based on a suggestion from shtwang on CodeProject.com, I have added code to
+the <b>EMailPage</b> class to retrieve the SMTP server name from the
+application key <b>EMailPage_SmtpServer</b> in <i>Web.config</i> so that you
+do not have to set it manually in the event handler unless you want to override
+it.  If not defined, it stays set to null unless changed in the event handler
+as before.<br/><br/>
+
+Based on a suggestion from Lynn Evans on CodeProject.com, I have reworked the
+<b>EMailPage</b> class to support a retry operation if the initial send fails.
+This can be controlled by the new <b>RetryOnFailure</b> and <b>RetryCount</b>
+properties on the <b>EMailPageEventArgs</b> class.<br/><br/>
+
+<b>NOTE:</b> This introduces breaking changes to the
+<b>EMailErrorEventArgs</b> class.  It is now derived from <b>EventArgs</b> and
+contains an <b>EMailEventArguments</b> property that lets you access and modify
+the e-mail event arguments (i.e. to increment the retry count and specify that
+it should retry on return, etc).
+    </td>
+  </tr>
+  <tr>
+    <td valign="top" width="100px">04/21/2004</td>
+    <td>Made some changes to the URL and UNC link encoding regular expressions
+        to make them more accurate.</td>
+  </tr>
+  <tr>
+    <td valign="top" width="100px">12/01/2003</td>
+    <td>Initial public release.</td>
+  </tr>
+  <tr>
+    <td valign="top" width="100px">11/22/2003</td>
+    <td>Moved the database classes out into their own assembly.  They are
+generic enough to be used by Windows Forms applications too and do not belong
+in the EWSoftware.Web namespace.</td>
+  </tr>
+  <tr>
+    <td valign="top" width="100px">07/05/2003</td>
+    <td>Moved some of the <b>EWSoftware.Web.Controls.CtrlUtils</b> code to
+the <b>EWSoftware.Web.PageUtils</b> class as it's a better fit there and
+wasn't being used anywhere in the control library. Used
+<a href="http://ndoc.sourceforge.net" target="_blank">NDOC</a> to generate
+a help file off of the XML comments in the source files.</td>
+  </tr>
+  <tr>
+    <td valign="top" width="100px">04/04/2003</td>
+    <td>Added the <b>BasePage.AuthType</b> property.</td>
+  </tr>
+  <tr>
+    <td>03/09/2003</td>
+    <td>Made enhancements to the data change checking code to automatically
+manage the <b>BasePage.Dirty</b> flag.</td>
+  </tr>
+  <tr>
+    <td valign="top" width="100px">01/22/2003</td>
+    <td>Initial release, not public.</td>
+  </tr>
+</table>
+</div>
+
+<a class="Reference" name="Embed"><h2>Embedded Resources</h2></a>
+The library contains some client-side script files.  Rather than
+distributing and installing them separately, they are embedded in the
+assembly as resources that are extracted and returned to the client
+browser at runtime.  For more information on how this is implemented,
+see the included help file and the following <b>Code Project</b>
+article: <a href="http://www.codeproject.com/KB/custom-controls/ressrvpage.aspx">A
+Resource Server Handler Class For Custom Controls</a>
+[<a href="http://www.codeproject.com/KB/custom-controls/ressrvpage.aspx" target="_blank">^</a>].
+
+<a class="Reference" name="Compress"><h2>Script Compression</h2></a>
+<p/>The scripts are also compressed during the build step for the project
+using the JavaScript compressor described in the <b>Code Project</b> article
+<a href="http://www.codeproject.com/KB/cs/jscompress.aspx">A JavaScript 
+Compression Tool for Web Applications</a>
+[<a href="http://www.codeproject.com/KB/cs/jscompress.aspx" target="_blank">^</a>].
+This reduces the size of the scripts by removing comments and extraneous
+whitespace so that they take up less space.  If you'd prefer to not use
+script compression, you can remove it from the pre-build step by opening
+the project, right click the project name in the <b>Solution
+Explorer</b>, select <b>Properties</b>, expand the <b>Common
+Properties</b> folder, and select the <b>Build Events</b> sub-item.
+Click in the <b>Pre-build Event Command Line</b> option and delete the
+command line that you see there.  Copy the scripts from the
+<b>ScriptsDev</b> folder to the <b>Scripts</b> folder to replace the
+existing compressed versions distributed with the library.  The
+<b>ScriptsDev</b> folder can be deleted from the project if not using
+the compressor.
+
+<a class="Reference" name="UseAsm"><h2>Using the Assembly in Your Projects</h2></a>
+The classes can be found in the assembly <b>EWSoftware.Web.dll</b>.
+In order to use the classes, copy this file to a folder on your hard drive
+or a network share and add a reference to it in your project.  To add the
+reference, open your project in Visual Studio .NET, open the <b>Solution
+Explorer</b> pane of the project, right click on the <b>References</b>
+folder, select <b>Add Reference...</b>, click the <b>Browse</b> button
+and navigate to the folder in which you placed the assembly, and finally
+select the <b>EWSoftware.Web.dll</b> file and click <b>OK</b>
+to close the dialogs and add the reference.
+
+<p/>In code modules that use classes from the <b>EWSoftware.Web</b>
+namespace, you will have to add the "<b>using EWSoftware.Web;</b>"
+statement ("<b>Imports EWSoftware.Web</b>" in VB.NET).
+
+<p/>See the following sections for <b>Web.config</b> settings that need
+to be added.
+
+<a class="Reference" name="EWSCSS"><h2>EWSoftware.Web.css File</h2></a>
+This file contains cascading style sheet entries that are used by
+classes in the <b>EWSoftware.Web</b> namespace to give certain elements a
+consistent look and feel.  You will need to merge these elements into the
+style sheet used by your application if you want to make use of them.  They
+are as follows.<br/><br/>
+
+<div class="tablediv">
+<table class="dtTABLE" cellpadding="0" cellspacing="0" border="0">
+  <tr>
+    <th valign="top" width="25%">CSS Element</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td valign="top" width="25%">body.MenuPage</td>
+    <td>Used by the <b>EWSoftware.Web.MenuPage</b> class to control the
+page body style.  The main use is for margins around the body of the
+page so that the information appears flush with the edges of the browser
+window if necessary.</td>
+  </tr>
+  <tr>
+    <td valign="top" width="25%">a.ErrorMsgLink<br/>a.ErrorMsgLink:hover</td>
+    <td>This style is used for the message links created by the
+<b>BasePage.MakeMsgLink</b> method.  The "<b>:hover</b>" style is used
+to add an underline when the mouse hovers over a  message link.  The
+<b>BasePage</b> class uses this class name as the default when turning the
+validation summary error messages into message links.</td>
+  </tr>
+  <tr>
+    <td valign="top" width="25%">.Disabled</td>
+    <td>This style is used by the <b>BasePage.SetEnabled*</b> methods as the
+default class name to use when a control is set to a disabled state.</td>
+  </tr>
+</table>
+</div>
+
+<a class="Reference" name="UsePgClass"><h2>Using BasePage and Its Derived Classes In Your
+Own Applications</h2></a>
+Using the page classes in your own applications is fairly straightforward.
+Just follow these steps:
+
+<ul>
+    <li>If you have not done so already, add a reference to the
+<b>EWSoftware.Web</b> assembly in your project.  See the start of this
+document for more information.</li>
+    <li>Add a new web form to your project.</li>
+    <li>Open the new form in design view and switch to HTML view.</li>
+    <li>If using <b>RenderedPage</b>, delete the <b>&lt;!DOCTYPE&gt;</b>
+tag, the opening <b>&lt;html&gt;</b> and closing <b>&lt;/html&gt;</b> tags,
+the <b>&lt;head&gt;</b> section, and the opening <b>&lt;body&gt;</b> and
+closing <b>&lt;/body&gt;</b> tags.  All that should be present in the new
+page are the <b>&lt;%@ Page&gt;</b> directive, the opening
+<b>&lt;form&gt;</b> tag, and the closing <b>&lt;/form&gt;</b> tag.</li>
+    <li>Open the code-behind module for the form.</li>
+    <li>Add a "<b>using EWSoftware.Web;</b>" statement to the code
+module ("<b>Imports EWSoftware.Web</b>" for VB.NET).</li>
+    <li>On the class declaration, replace the reference to
+<b>System.Web.UI.Page</b> as the base class with a reference to one of
+the page classes in the <b>EWSoftware.Web</b> namespace
+(<b>BasePage</b>, <b>RenderedPage</b>, <b>MenuPage</b>, or
+<b>VerticalMenuPage</b>) or one of your own classes derived from them.</li>
+    <li>Normally, you will add code to the <b>Page_Load</b> event to set
+the page title and set the initial focus to the first control on the
+page.  This should be done only on the initial page load and not on
+postback as other events may have changed the page title or set the
+focus to some other control.  For example:
+<br/><br/>
+<pre lang="cs">
+     private void Page_Load(object sender, System.EventArgs e)
+     {
+         if(!Page.IsPostBack)
+         {
+             <b>this.PageTitle</b> = "My Page Title";
+             <b>this.SetFocus</b>(txtFirstField);
+
+             ... Do other stuff for initial page load ...
+         }
+     }
+</pre>
+
+<pre lang="vbnet">
+     Private Sub Page_Load(ByVal sender As Object, _
+       ByVal e As System.EventArgs) Handles MyBase.Load
+
+         If Not Page.IsPostBack Then
+             <b>Me.PageTitle</b> = "My Page Title"
+             <b>Me.SetFocus</b>(txtFirstField)
+
+             ... Do other stuff for initial page load ...
+         End If
+     End Sub
+</pre></li>
+    <li>Return to design view and add controls the form in the normal
+fashion.</li>
+</ul>
+
+<a class="Reference" name="NoStyles"><h2>No Styles In Design View</h2></a>
+One problem when using the page classes derived from <b>RenderedPage</b> is
+that you lose the style settings normally present when you have the entire
+supporting header HTML in the ASPX page.  A solution for this is to
+temporarily add a <b>&lt;link&gt;</b> tag to the top of the page that
+references the application style sheet while you are designing the initial
+layout of the page.  Just be sure to remove it when you are done designing
+the page.
+
+<a class="Reference" name="IEWC"><h2>Microsoft Internet Explorer Web Control Awareness</h2></a>
+Awareness of the Internet Explorer Web Controls (<b>TabStrip</b>,
+<b>MultiPage</b>, and <b>PageView</b>) is provided and consists of
+disabling or enabling controls in a <b>PageView</b> or <b>MultiPage</b>
+control via the <b>BasePage.SetEnabledAll</b> method when they appear on
+a page and also correctly setting focus to a control embedded in a
+<b>PageView</b> via the code in the <b>SetFocus.js</b> JavaScript
+module. However, the implementation of this awareness has been done in
+such a way that no reference to the IE Web Controls assembly is needed
+and the <b>EWSoftware.Web</b> assembly has no dependency on it.  As
+such, whether you use them or not, no special steps are needed and no
+additional assemblies are required in order to use the
+<b>EWSoftware.Web</b> classes.  For more information about the IE Web
+Controls, see the <b>Source Projects</b> section of
+<a href="http://www.asp.net" target="_blank">www.asp.net</a>.
+    </bodyText>
+</topic>
+<!-- @DefaultTopic --><!-- @SortOrder 1 -->

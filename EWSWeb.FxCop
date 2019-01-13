@@ -1,0 +1,545 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FxCopProject Version="1.35" Name="EWSoftware.Web">
+ <ProjectOptions>
+  <SharedProject>True</SharedProject>
+  <Stylesheet Apply="False">http://www.gotdotnet.com/team/fxcop//xsl/1.35/FxCopReport.xsl</Stylesheet>
+  <SaveMessages>
+   <Project Status="Active, Excluded" NewOnly="False" />
+   <Report Status="Active" NewOnly="False" />
+  </SaveMessages>
+  <ProjectFile Compress="True" DefaultTargetCheck="True" DefaultRuleCheck="True" SaveByRuleGroup="" Deterministic="True" />
+  <EnableMultithreadedLoad>True</EnableMultithreadedLoad>
+  <EnableMultithreadedAnalysis>True</EnableMultithreadedAnalysis>
+  <SourceLookup>True</SourceLookup>
+  <AnalysisExceptionsThreshold>10</AnalysisExceptionsThreshold>
+  <RuleExceptionsThreshold>1</RuleExceptionsThreshold>
+  <Spelling Locale="en-us" />
+  <VersionAware>False</VersionAware>
+  <OverrideRuleVisibilities>False</OverrideRuleVisibilities>
+  <CustomDictionaries SearchFxCopDir="True" SearchUserProfile="True" SearchProjectDir="True" />
+  <SearchGlobalAssemblyCache>False</SearchGlobalAssemblyCache>
+  <DeadlockDetectionTimeout>120</DeadlockDetectionTimeout>
+ </ProjectOptions>
+ <Targets>
+  <Target Name="$(ProjectDir)/bin/Debug/EWSoftware.Web.dll" Analyze="True" AnalyzeAllChildren="True" />
+ </Targets>
+ <Rules>
+  <RuleFiles>
+   <RuleFile Name="$(FxCopDir)\Rules\DesignRules.dll" Enabled="True" AllRulesEnabled="True" />
+   <RuleFile Name="$(FxCopDir)\Rules\GlobalizationRules.dll" Enabled="True" AllRulesEnabled="False">
+    <Rule Name="AvoidDuplicateAccelerators" Enabled="True" />
+    <Rule Name="DoNotHardcodeLocaleSpecificStrings" Enabled="True" />
+    <Rule Name="SetLocaleForDataTypes" Enabled="True" />
+    <Rule Name="SpecifyCultureInfo" Enabled="True" />
+    <Rule Name="SpecifyIFormatProvider" Enabled="True" />
+    <Rule Name="SpecifyMessageBoxOptions" Enabled="True" />
+   </RuleFile>
+   <RuleFile Name="$(FxCopDir)\Rules\InteroperabilityRules.dll" Enabled="True" AllRulesEnabled="True" />
+   <RuleFile Name="$(FxCopDir)\Rules\MobilityRules.dll" Enabled="True" AllRulesEnabled="True" />
+   <RuleFile Name="$(FxCopDir)\Rules\NamingRules.dll" Enabled="True" AllRulesEnabled="False">
+    <Rule Name="AvoidLanguageSpecificTypeNamesInParameters" Enabled="True" />
+    <Rule Name="AvoidTypeNamesInParameters" Enabled="True" />
+    <Rule Name="CompoundWordsShouldBeCasedCorrectly" Enabled="True" />
+    <Rule Name="DoNotNameEnumValuesReserved" Enabled="True" />
+    <Rule Name="DoNotPrefixEnumValuesWithTypeName" Enabled="True" />
+    <Rule Name="EventsShouldNotHaveBeforeOrAfterPrefix" Enabled="True" />
+    <Rule Name="FlagsEnumsShouldHavePluralNames" Enabled="True" />
+    <Rule Name="IdentifiersShouldBeCasedCorrectly" Enabled="True" />
+    <Rule Name="IdentifiersShouldDifferByMoreThanCase" Enabled="True" />
+    <Rule Name="IdentifiersShouldHaveCorrectPrefix" Enabled="True" />
+    <Rule Name="IdentifiersShouldHaveCorrectSuffix" Enabled="True" />
+    <Rule Name="IdentifiersShouldNotContainUnderscores" Enabled="True" />
+    <Rule Name="IdentifiersShouldNotHaveIncorrectPrefix" Enabled="True" />
+    <Rule Name="IdentifiersShouldNotHaveIncorrectSuffix" Enabled="True" />
+    <Rule Name="IdentifiersShouldNotMatchKeywords" Enabled="True" />
+    <Rule Name="LongAcronymsShouldBePascalCased" Enabled="True" />
+    <Rule Name="OnlyFlagsEnumsShouldHavePluralNames" Enabled="True" />
+    <Rule Name="ParameterNamesShouldMatchBaseDeclaration" Enabled="True" />
+    <Rule Name="ParameterNamesShouldNotMatchMemberNames" Enabled="True" />
+    <Rule Name="PropertyNamesShouldNotMatchGetMethods" Enabled="True" />
+    <Rule Name="ResourceStringCompoundWordsShouldBeCasedCorrectly" Enabled="True" />
+    <Rule Name="ResourceStringsShouldBeSpelledCorrectly" Enabled="True" />
+    <Rule Name="TypeNamesShouldNotMatchNamespaces" Enabled="True" />
+    <Rule Name="UsePreferredTerms" Enabled="True" />
+   </RuleFile>
+   <RuleFile Name="$(FxCopDir)\Rules\PerformanceRules.dll" Enabled="True" AllRulesEnabled="True" />
+   <RuleFile Name="$(FxCopDir)\Rules\PortabilityRules.dll" Enabled="True" AllRulesEnabled="True" />
+   <RuleFile Name="$(FxCopDir)\Rules\SecurityRules.dll" Enabled="True" AllRulesEnabled="True" />
+   <RuleFile Name="$(FxCopDir)\Rules\UsageRules.dll" Enabled="True" AllRulesEnabled="True" />
+  </RuleFiles>
+  <Groups />
+  <Settings />
+ </Rules>
+ <FxCopReport Version="1.35">
+  <Targets>
+   <Target Name="$(ProjectDir)/bin/Debug/EWSoftware.Web.dll">
+    <Modules>
+     <Module Name="ewsoftware.web.dll">
+      <Messages>
+       <Message TypeName="AssembliesShouldHaveValidStrongNames" Category="Microsoft.Design" CheckId="CA2210" Status="Excluded" Created="2006-02-15 21:24:59Z">
+        <Issue Name="NoStrongName">
+         <Item>EWSoftware.Web</Item>
+        </Issue>
+        <Notes>
+         <User Name="EWOODRUFF">
+          <Note Id="3" />
+         </User>
+        </Notes>
+       </Message>
+      </Messages>
+      <Namespaces>
+       <Namespace Name="EWSoftware.Web">
+        <Types>
+         <Type Name="BasePage">
+          <Members>
+           <Member Name="BypassPromptIds">
+            <Messages>
+             <Message TypeName="PropertiesShouldNotReturnArrays" Category="Microsoft.Performance" CheckId="CA1819" Status="Excluded" Created="2006-04-02 20:46:05Z">
+              <Issue>
+               <Item>BasePage.BypassPromptIds:String[]</Item>
+              </Issue>
+              <Notes>
+               <User Name="EWOODRUFF">
+                <Note Id="13" />
+               </User>
+              </Notes>
+             </Message>
+            </Messages>
+           </Member>
+           <Member Name="EMailError" Kind="Event">
+            <Messages>
+             <Message Id="EMail" TypeName="CompoundWordsShouldBeCasedCorrectly" Category="Microsoft.Naming" CheckId="CA1702" Status="Excluded" Created="2006-04-02 20:46:05Z">
+              <Issue Name="ShouldBeDiscreteTerm">
+               <Item>EMail</Item>
+               <Item>event</Item>
+               <Item>EMailError</Item>
+               <Item>Email</Item>
+              </Issue>
+              <Notes>
+               <User Name="EWOODRUFF">
+                <Note Id="9" />
+               </User>
+              </Notes>
+             </Message>
+            </Messages>
+           </Member>
+           <Member Name="EMailThisPage" Kind="Event">
+            <Messages>
+             <Message Id="EMail" TypeName="CompoundWordsShouldBeCasedCorrectly" Category="Microsoft.Naming" CheckId="CA1702" Status="Excluded" Created="2006-04-02 20:46:05Z">
+              <Issue Name="ShouldBeDiscreteTerm">
+               <Item>EMail</Item>
+               <Item>event</Item>
+               <Item>EMailThisPage</Item>
+               <Item>Email</Item>
+              </Issue>
+              <Notes>
+               <User Name="EWOODRUFF">
+                <Note Id="9" />
+               </User>
+              </Notes>
+             </Message>
+            </Messages>
+           </Member>
+           <Member Name="EMailRenderedPage">
+            <Messages>
+             <Message Id="EMail" TypeName="CompoundWordsShouldBeCasedCorrectly" Category="Microsoft.Naming" CheckId="CA1702" Status="Excluded" Created="2006-04-02 20:46:05Z">
+              <Issue Name="ShouldBeDiscreteTerm">
+               <Item>EMail</Item>
+               <Item>property</Item>
+               <Item>EMailRenderedPage</Item>
+               <Item>Email</Item>
+              </Issue>
+              <Notes>
+               <User Name="EWOODRUFF">
+                <Note Id="9" />
+               </User>
+              </Notes>
+             </Message>
+            </Messages>
+           </Member>
+           <Member Name="IsRenderingForEMail">
+            <Messages>
+             <Message Id="EMail" TypeName="CompoundWordsShouldBeCasedCorrectly" Category="Microsoft.Naming" CheckId="CA1702" Status="Excluded" Created="2006-04-02 20:46:05Z">
+              <Issue Name="ShouldBeDiscreteTerm">
+               <Item>EMail</Item>
+               <Item>property</Item>
+               <Item>IsRenderingForEMail</Item>
+               <Item>Email</Item>
+              </Issue>
+              <Notes>
+               <User Name="EWOODRUFF">
+                <Note Id="9" />
+               </User>
+              </Notes>
+             </Message>
+            </Messages>
+           </Member>
+           <Member Name="OnEMailError(EWSoftware.Web.EMailErrorEventArgs):System.Void">
+            <Messages>
+             <Message Id="EMail" TypeName="CompoundWordsShouldBeCasedCorrectly" Category="Microsoft.Naming" CheckId="CA1702" Status="Excluded" Created="2006-04-02 20:46:05Z">
+              <Issue Name="ShouldBeDiscreteTerm">
+               <Item>EMail</Item>
+               <Item>method</Item>
+               <Item>OnEMailError</Item>
+               <Item>Email</Item>
+              </Issue>
+              <Notes>
+               <User Name="EWOODRUFF">
+                <Note Id="9" />
+               </User>
+              </Notes>
+             </Message>
+            </Messages>
+           </Member>
+           <Member Name="OnEMailThisPage(EWSoftware.Web.EMailPageEventArgs):System.Void">
+            <Messages>
+             <Message Id="EMail" TypeName="CompoundWordsShouldBeCasedCorrectly" Category="Microsoft.Naming" CheckId="CA1702" Status="Excluded" Created="2006-04-02 20:46:05Z">
+              <Issue Name="ShouldBeDiscreteTerm">
+               <Item>EMail</Item>
+               <Item>method</Item>
+               <Item>OnEMailThisPage</Item>
+               <Item>Email</Item>
+              </Issue>
+              <Notes>
+               <User Name="EWOODRUFF">
+                <Note Id="9" />
+               </User>
+              </Notes>
+             </Message>
+            </Messages>
+           </Member>
+           <Member Name="RenderForEMail(System.Web.UI.HtmlTextWriter):System.Void">
+            <Messages>
+             <Message Id="EMail" TypeName="CompoundWordsShouldBeCasedCorrectly" Category="Microsoft.Naming" CheckId="CA1702" Status="Excluded" Created="2006-04-02 20:46:05Z">
+              <Issue Name="ShouldBeDiscreteTerm">
+               <Item>EMail</Item>
+               <Item>method</Item>
+               <Item>RenderForEMail</Item>
+               <Item>Email</Item>
+              </Issue>
+              <Notes>
+               <User Name="EWOODRUFF">
+                <Note Id="9" />
+               </User>
+              </Notes>
+             </Message>
+             <Message TypeName="ConsiderPassingBaseTypesAsParameters" Category="Microsoft.Design" CheckId="CA1011" Status="Excluded" Created="2006-04-02 20:46:05Z">
+              <Issue>
+               <Item>writer</Item>
+               <Item>BasePage.RenderForEMail(HtmlTextWriter):Void</Item>
+               <Item>System.Web.UI.HtmlTextWriter</Item>
+               <Item>System.IO.TextWriter</Item>
+              </Issue>
+              <Notes>
+               <User Name="EWOODRUFF">
+                <Note Id="10" />
+               </User>
+              </Notes>
+             </Message>
+             <Message TypeName="DoNotCatchGeneralExceptionTypes" Category="Microsoft.Design" CheckId="CA1031" Status="Excluded" Created="2006-04-02 20:46:05Z">
+              <Issue>
+               <Item>BasePage.RenderForEMail(HtmlTextWriter):Void</Item>
+               <Item>System.Exception</Item>
+              </Issue>
+              <Notes>
+               <User Name="EWOODRUFF">
+                <Note Id="12" />
+               </User>
+              </Notes>
+             </Message>
+             <Message TypeName="InstantiateArgumentExceptionsCorrectly" Category="Microsoft.Usage" CheckId="CA2208" Status="Excluded" Created="2006-04-02 20:46:05Z">
+              <Issue Name="TwoArgumentsFirstShouldBeParameterName">
+               <Item>System.ArgumentNullException</Item>
+               <Item>ArgumentNullException.ArgumentNullException(String, String)</Item>
+               <Item>From</Item>
+               <Item>A sender must be specified for the e-mail message</Item>
+              </Issue>
+              <Issue Name="TwoArgumentsFirstShouldBeParameterName">
+               <Item>System.ArgumentNullException</Item>
+               <Item>ArgumentNullException.ArgumentNullException(String, String)</Item>
+               <Item>To</Item>
+               <Item>A recipient must be specified for the e-mail message</Item>
+              </Issue>
+              <Notes>
+               <User Name="EWOODRUFF">
+                <Note Id="12" />
+               </User>
+              </Notes>
+             </Message>
+             <Message TypeName="ValidateArgumentsOfPublicMethods" Category="Microsoft.Design" CheckId="CA1062" Status="Excluded" Created="2006-04-02 20:46:05Z">
+              <Issue>
+               <Item>'writer'</Item>
+               <Item>BasePage.RenderForEMail(HtmlTextWriter):Void</Item>
+              </Issue>
+              <Notes>
+               <User Name="EWOODRUFF">
+                <Note Id="14" />
+               </User>
+              </Notes>
+             </Message>
+            </Messages>
+           </Member>
+           <Member Name="SetEnabledAll(System.Boolean,System.Web.UI.Control):System.Void">
+            <Messages>
+             <Message TypeName="DoNotCastUnnecessarily" Category="Microsoft.Performance" CheckId="CA1800" Status="Excluded" Created="2006-04-02 20:46:05Z">
+              <Issue Name="Parameter">
+               <Item>ctlPageForm</Item>
+               <Item>System.Web.UI.Page</Item>
+               <Item>BasePage.SetEnabledAll(Boolean, Control):Void</Item>
+               <Item>castclass</Item>
+              </Issue>
+              <Notes>
+               <User Name="EWOODRUFF">
+                <Note Id="11" />
+               </User>
+              </Notes>
+             </Message>
+            </Messages>
+           </Member>
+           <Member Name="SetFocusExtended(System.Web.UI.WebControls.WebControl):System.Void">
+            <Messages>
+             <Message TypeName="ConsiderPassingBaseTypesAsParameters" Category="Microsoft.Design" CheckId="CA1011" Status="Excluded" Created="2006-02-15 23:35:19Z">
+              <Issue>
+               <Item>ctl</Item>
+               <Item>BasePage.SetFocusExtended(WebControl):Void</Item>
+               <Item>System.Web.UI.WebControls.WebControl</Item>
+               <Item>System.Web.UI.Control</Item>
+              </Issue>
+              <Notes>
+               <User Name="EWOODRUFF">
+                <Note Id="8" />
+               </User>
+              </Notes>
+             </Message>
+            </Messages>
+           </Member>
+           <Member Name="SkipDataCheckIds">
+            <Messages>
+             <Message TypeName="PropertiesShouldNotReturnArrays" Category="Microsoft.Performance" CheckId="CA1819" Status="Excluded" Created="2006-04-02 20:46:05Z">
+              <Issue>
+               <Item>BasePage.SkipDataCheckIds:String[]</Item>
+              </Issue>
+              <Notes>
+               <User Name="EWOODRUFF">
+                <Note Id="13" />
+               </User>
+              </Notes>
+             </Message>
+            </Messages>
+           </Member>
+          </Members>
+         </Type>
+         <Type Name="EMailErrorEventArgs">
+          <Messages>
+           <Message Id="EMail" TypeName="CompoundWordsShouldBeCasedCorrectly" Category="Microsoft.Naming" CheckId="CA1702" Status="Excluded" Created="2006-02-15 21:24:59Z">
+            <Issue Name="ShouldBeDiscreteTerm">
+             <Item>EMail</Item>
+             <Item>class</Item>
+             <Item>EMailErrorEventArgs</Item>
+             <Item>Email</Item>
+            </Issue>
+            <Notes>
+             <User Name="EWOODRUFF">
+              <Note Id="0" />
+             </User>
+            </Notes>
+           </Message>
+          </Messages>
+          <Members>
+           <Member Name="EMailEventArguments">
+            <Messages>
+             <Message Id="EMail" TypeName="CompoundWordsShouldBeCasedCorrectly" Category="Microsoft.Naming" CheckId="CA1702" Status="Excluded" Created="2006-02-15 21:24:59Z">
+              <Issue Name="ShouldBeDiscreteTerm">
+               <Item>EMail</Item>
+               <Item>property</Item>
+               <Item>EMailEventArguments</Item>
+               <Item>Email</Item>
+              </Issue>
+              <Notes>
+               <User Name="EWOODRUFF">
+                <Note Id="0" />
+               </User>
+              </Notes>
+             </Message>
+            </Messages>
+           </Member>
+           <Member Name="EMailException">
+            <Messages>
+             <Message Id="EMail" TypeName="CompoundWordsShouldBeCasedCorrectly" Category="Microsoft.Naming" CheckId="CA1702" Status="Excluded" Created="2006-02-15 21:24:59Z">
+              <Issue Name="ShouldBeDiscreteTerm">
+               <Item>EMail</Item>
+               <Item>property</Item>
+               <Item>EMailException</Item>
+               <Item>Email</Item>
+              </Issue>
+              <Notes>
+               <User Name="EWOODRUFF">
+                <Note Id="0" />
+               </User>
+              </Notes>
+             </Message>
+            </Messages>
+           </Member>
+          </Members>
+         </Type>
+         <Type Name="EMailPageEventArgs">
+          <Messages>
+           <Message Id="EMail" TypeName="CompoundWordsShouldBeCasedCorrectly" Category="Microsoft.Naming" CheckId="CA1702" Status="Excluded" Created="2006-02-15 21:24:59Z">
+            <Issue Name="ShouldBeDiscreteTerm">
+             <Item>EMail</Item>
+             <Item>class</Item>
+             <Item>EMailPageEventArgs</Item>
+             <Item>Email</Item>
+            </Issue>
+            <Notes>
+             <User Name="EWOODRUFF">
+              <Note Id="0" />
+             </User>
+            </Notes>
+           </Message>
+          </Messages>
+          <Members>
+           <Member Name="EMail">
+            <Messages>
+             <Message Id="EMail" TypeName="CompoundWordsShouldBeCasedCorrectly" Category="Microsoft.Naming" CheckId="CA1702" Status="Excluded" Created="2006-02-15 21:24:59Z">
+              <Issue Name="ShouldBeDiscreteTerm">
+               <Item>EMail</Item>
+               <Item>property</Item>
+               <Item>EMail</Item>
+               <Item>Email</Item>
+              </Issue>
+              <Notes>
+               <User Name="EWOODRUFF">
+                <Note Id="0" />
+               </User>
+              </Notes>
+             </Message>
+            </Messages>
+           </Member>
+          </Members>
+         </Type>
+         <Type Name="PageUtils">
+          <Members>
+           <Member Name="HtmlEncode(System.Object,System.Boolean):System.String">
+            <Messages>
+             <Message TypeName="ValidateArgumentsOfPublicMethods" Category="Microsoft.Design" CheckId="CA1062" Status="Excluded" Created="2006-02-15 21:47:40Z">
+              <Issue>
+               <Item>'objText'</Item>
+               <Item>PageUtils.HtmlEncode(Object, Boolean):String</Item>
+              </Issue>
+              <Notes>
+               <User Name="EWOODRUFF">
+                <Note Id="6" />
+               </User>
+              </Notes>
+             </Message>
+            </Messages>
+           </Member>
+          </Members>
+         </Type>
+         <Type Name="RenderedPage">
+          <Members>
+           <Member Name="RenderFooter(System.Web.UI.HtmlTextWriter):System.Void">
+            <Messages>
+             <Message TypeName="ConsiderPassingBaseTypesAsParameters" Category="Microsoft.Design" CheckId="CA1011" Status="Excluded" Created="2006-04-02 20:46:05Z">
+              <Issue>
+               <Item>writer</Item>
+               <Item>RenderedPage.RenderFooter(HtmlTextWriter):Void</Item>
+               <Item>System.Web.UI.HtmlTextWriter</Item>
+               <Item>System.IO.TextWriter</Item>
+              </Issue>
+              <Notes>
+               <User Name="EWOODRUFF">
+                <Note Id="10" />
+               </User>
+              </Notes>
+             </Message>
+            </Messages>
+           </Member>
+           <Member Name="RenderHeader(System.Web.UI.HtmlTextWriter):System.Void">
+            <Messages>
+             <Message TypeName="ConsiderPassingBaseTypesAsParameters" Category="Microsoft.Design" CheckId="CA1011" Status="Excluded" Created="2006-04-02 20:46:05Z">
+              <Issue>
+               <Item>writer</Item>
+               <Item>RenderedPage.RenderHeader(HtmlTextWriter):Void</Item>
+               <Item>System.Web.UI.HtmlTextWriter</Item>
+               <Item>System.IO.TextWriter</Item>
+              </Issue>
+              <Notes>
+               <User Name="EWOODRUFF">
+                <Note Id="10" />
+               </User>
+              </Notes>
+             </Message>
+            </Messages>
+           </Member>
+          </Members>
+         </Type>
+         <Type Name="RobotOptions">
+          <Messages>
+           <Message TypeName="EnumsShouldHaveZeroValue" Category="Microsoft.Design" CheckId="CA1008" Status="Excluded" Created="2006-02-15 21:24:59Z" FixCategory="Breaking">
+            <Issue Name="FlagsRename">
+             <Item>EWSoftware.Web.RobotOptions</Item>
+             <Item>RobotOptions.NotSet</Item>
+            </Issue>
+            <Notes>
+             <User Name="EWOODRUFF">
+              <Note Id="5" />
+             </User>
+            </Notes>
+           </Message>
+          </Messages>
+         </Type>
+        </Types>
+       </Namespace>
+      </Namespaces>
+     </Module>
+    </Modules>
+   </Target>
+  </Targets>
+  <Notes>
+   <User Name="EWOODRUFF">
+    <Note Id="0" Modified="2006-02-15 21:25:38Z">Okay as is</Note>
+    <Note Id="3" Modified="2006-02-15 21:35:59Z">Not for this one</Note>
+    <Note Id="5" Modified="2006-02-15 21:37:59Z">Already released with the given names so can't change it now.</Note>
+    <Note Id="6" Modified="2006-02-15 22:19:44Z">It does validate it</Note>
+    <Note Id="8" Modified="2006-02-15 23:36:20Z">Limit it to WebControls for now</Note>
+    <Note Id="9" Modified="2006-04-02 20:46:35Z">Okay as is</Note>
+    <Note Id="10" Modified="2006-04-02 20:46:49Z">Okay as is</Note>
+    <Note Id="11" Modified="2006-04-02 20:47:18Z">Let it go for this one</Note>
+    <Note Id="12" Modified="2006-04-02 20:48:25Z">Fine as they are</Note>
+    <Note Id="13" Modified="2006-04-02 20:48:38Z">Bit late now.  Too much code that uses it the way it is.</Note>
+    <Note Id="14" Modified="2006-04-02 20:49:07Z">It will be valid</Note>
+   </User>
+  </Notes>
+  <Rules>
+   <Rule TypeName="AssembliesShouldHaveValidStrongNames" Category="Microsoft.Design" CheckId="CA2210">
+    <Resolution Name="NoStrongName">Sign '{0}' with a strong name key.</Resolution>
+   </Rule>
+   <Rule TypeName="CompoundWordsShouldBeCasedCorrectly" Category="Microsoft.Naming" CheckId="CA1702">
+    <Resolution Name="ShouldBeDiscreteTerm">The compound word '{0}' in {1} '{2}' exists as a discrete term. If your usage is intended to be single word, case it as '{3}'.</Resolution>
+   </Rule>
+   <Rule TypeName="ConsiderPassingBaseTypesAsParameters" Category="Microsoft.Design" CheckId="CA1011">
+    <Resolution Name="Default">Consider changing the type of parameter '{0}' in {1} from {2} to its base type {3}. This method appears to only require base class members in its implementation. Suppress this violation if there is a compelling reason to require the more derived type in the method signature.</Resolution>
+   </Rule>
+   <Rule TypeName="DoNotCastUnnecessarily" Category="Microsoft.Performance" CheckId="CA1800">
+    <Resolution Name="Parameter">'{0}', a parameter, is cast to type '{1}' multiple times in method {2}. Cache the result of the 'as' operator or direct cast in order to eliminate the redundant {3} instruction.</Resolution>
+   </Rule>
+   <Rule TypeName="DoNotCatchGeneralExceptionTypes" Category="Microsoft.Design" CheckId="CA1031">
+    <Resolution Name="Default">Modify '{0}' to catch a more specific exception than '{1}' or rethrow the exception.</Resolution>
+   </Rule>
+   <Rule TypeName="EnumsShouldHaveZeroValue" Category="Microsoft.Design" CheckId="CA1008">
+    <Resolution Name="FlagsRename">In enum '{0}', change the name of '{1}' to 'None'.</Resolution>
+   </Rule>
+   <Rule TypeName="InstantiateArgumentExceptionsCorrectly" Category="Microsoft.Usage" CheckId="CA2208">
+    <Resolution Name="TwoArgumentsFirstShouldBeParameterName">Calls to {0}'s constructor '{1}' should be in the order paramName, message instead of '{2}', '{3}'. Note that the provided parameter name should have the exact casing as declared on the method.</Resolution>
+   </Rule>
+   <Rule TypeName="PropertiesShouldNotReturnArrays" Category="Microsoft.Performance" CheckId="CA1819">
+    <Resolution Name="Default">Change {0} to return a collection or make it a method.</Resolution>
+   </Rule>
+   <Rule TypeName="ValidateArgumentsOfPublicMethods" Category="Microsoft.Design" CheckId="CA1062">
+    <Resolution Name="Default">Validate parameter {0} passed to externally visible method {1}.</Resolution>
+   </Rule>
+  </Rules>
+ </FxCopReport>
+</FxCopProject>

@@ -1,0 +1,331 @@
+/* Default CSS Stylesheet for a new Web Application project */
+
+BODY
+{
+	font-size: 9pt;
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	color: black;
+	background-color: white;
+}
+BODY.MenuPage
+{
+	margin: 10px;
+}
+H1
+{
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	font-size: 16pt;
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+H2
+{
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	font-size: 12pt;
+	margin-bottom: 5px;
+}
+H3
+{
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	font-size: 10pt;
+	margin-bottom: 5px;
+}
+PRE
+{
+	font-family: 'Courier New' , monospace;
+	font-size: 8pt;
+}
+SMALL
+{
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	font-size: 7pt;
+}
+BIG
+{
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	font-size: 12pt;
+	font-weight: bold;
+}
+B
+{
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	font-size: 9pt;
+}
+BLOCKQUOTE
+{
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	font-size: 9pt;
+}
+HR.Divider
+{
+	color: black;
+	height: 3px;
+}
+DIV
+{
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	font-size: 9pt;
+}
+DT
+{
+	margin-top: 10px;
+	font-weight: bold;
+	font-size: 10pt;
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+}
+DD
+{
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	font-size: 9pt;
+}
+A
+{
+	color: Blue;
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	font-size: 9pt;
+}
+A.ErrorMsgLink
+{
+	color: #dc143c;
+	font-weight: bold;
+	text-decoration: none;
+}
+A.ErrorMsgLink:hover
+{
+	text-decoration: underline;
+}
+INPUT
+{
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	font-size: 9pt;
+}
+INPUT.FormBtn
+{
+	font-weight: bold;
+	font-size: 9pt;
+	height: 0.25in;
+	width: 0.75in;
+}
+SELECT
+{
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	font-size: 9pt;
+}
+TEXTAREA
+{
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	font-size: 9pt;
+}
+TABLE
+{
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	font-size: 9pt;
+}
+TH
+{
+	background-color: gray;
+	color: white;
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	font-size: 9pt;
+	text-align: left;
+}
+TD
+{
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	font-size: 9pt;
+}
+TD.Cell
+{
+	border-right: lightgrey 5px solid;
+	border-top: lightgrey 5px solid;
+	border-left: lightgrey 5px solid;
+	color: black;
+	border-bottom: lightgrey 5px solid;
+	background-color: lightgrey;
+}
+TD.CellLabel
+{
+	border-right: lightgrey 5px solid;
+	border-top: lightgrey 5px solid;
+	border-left: lightgrey 5px solid;
+	color: black;
+	border-bottom: lightgrey 5px solid;
+	background-color: lightgrey;
+	font-weight: bold;
+	text-align: right;
+}
+TD.CellLabelLeft
+{
+	border-right: lightgrey 5px solid;
+	border-top: lightgrey 5px solid;
+	border-left: lightgrey 5px solid;
+	color: black;
+	border-bottom: lightgrey 5px solid;
+	background-color: lightgrey;
+	font-weight: bold;
+}
+TD.CellField
+{
+	border-right: lightgrey 5px solid;
+	border-top: lightgrey 5px solid;
+	border-left: lightgrey 5px solid;
+	color: black;
+	border-bottom: lightgrey 5px solid;
+	background-color: white;
+}
+TD.FieldLabel
+{
+	font-weight: bold;
+	text-align: right;
+}
+TD.FieldLabelLeft
+{
+	font-weight: bold;
+	text-align: left;
+}
+TD.MenuAppName
+{
+	font-weight: bold;
+	font-size: 16pt;
+	color: gold;
+	font-style: italic;
+	background-color: #4e5f91;
+}
+.MenuLink
+{
+	font-weight: bold;
+	color: white;
+	line-height: 40px;
+	padding: 10,10,10,10;
+}
+.MenuLinkHover
+{
+	color: black;
+	background-color: white;
+}
+.ColHeader
+{
+	font-weight: bold;
+	color: black;
+	background-color: darkgray;
+}
+.ColFooter
+{
+	color: black;
+	background-color: lightgrey;
+}
+.TabColHeader
+{
+	color: black;
+	background-color: lightgrey;
+	font-weight: bold;
+}
+.TabColFooter
+{
+	color: black;
+	background-color: lightgrey;
+}
+.Pager
+{
+	border-top: thin solid;
+	font-weight: bold;
+	color: black;
+}
+.Shaded
+{
+	background-color: lightgrey;
+}
+.Menu
+{
+	color: white;
+	background-color: #4e5f91;
+}
+.aspNetDisabled
+{
+}
+.ErrorMsg
+{
+	color: #dc143c;
+	font-weight: bold;
+}
+.AboutHeader
+{
+	color: white;
+	background-color: navy;
+	text-align: center;
+}
+.Attn
+{
+	color: #dc143c;
+	font-weight: bold;
+}
+.Inactive
+{
+	color: #dc143c;
+}
+.Note
+{
+	color: #0000ff;
+	font-weight: bold;
+}
+.Small
+{
+	font-size: 7pt;
+}
+.ActiveItem
+{
+	color: #0000ff;
+	font-weight: bold;
+}
+.InactiveItem
+{
+	color: #dc143c;
+	font-weight: bold;
+}
+.Numeric
+{
+	text-align: right;
+}
+.TabStyle
+{
+	padding-right: 25px;
+	padding-left: 25px;
+	padding-bottom: 5px;
+	padding-top: 5px;
+	border-bottom: black 1px solid;
+	font-weight: bold;
+	font-size: 9pt;
+	color: black;
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	background-color: #a9a9a9;
+	text-align: center;
+}
+.TabSelStyle
+{
+	padding-right: 25px;
+	padding-left: 25px;
+	padding-bottom: 5px;
+	padding-top: 5px;
+	border-bottom: black 1px solid;
+	font-weight: bold;
+	font-size: 9pt;
+	color: black;
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	background-color: #d3d3d3;
+	text-align: center;
+}
+.TabHoverStyle
+{
+	padding-right: 25px;
+	padding-left: 25px;
+	padding-bottom: 5px;
+	padding-top: 5px;
+	border-bottom: black 1px solid;
+	font-weight: bold;
+	font-size: 9pt;
+	color: black;
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	background-color: #d3d3d3;
+	text-align: center;
+	text-decoration: underline;
+}

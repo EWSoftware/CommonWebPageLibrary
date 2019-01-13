@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<siteMap xmlns="http://schemas.microsoft.com/AspNet/SiteMap-File-1.0" >
+  <siteMapNode>
+    <siteMapNode url="General.aspx" title="General"  description="General features" />
+    <siteMapNode url="TestEMailPage.aspx" title="E-Mail Page"  description="Test the e-mail page feature" />
+    <siteMapNode url="TestEMailPage2.aspx" title="E-Mail Page #2" description="More -email page stuff" />
+    <siteMapNode url="Utilities.aspx" title="Utilities" description="Utility class" />
+    <siteMapNode url="Default.aspx" title="About" description="About EWSoftware.Web" />
+  </siteMapNode>
+</siteMap>

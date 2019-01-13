@@ -1,0 +1,705 @@
+<!--------------------------------------------------------------------------->
+<!--                           INTRODUCTION
+
+ The Code Project article submission template (HTML version)
+
+Using this template will help us post your article sooner. To use, just
+follow the 3 easy steps below:
+
+     1. Fill in the article description details
+     2. Add links to your images and downloads
+     3. Include the main article text
+
+That's all there is to it! All formatting will be done by our submission
+scripts and style sheets.
+
+-->
+<!--------------------------------------------------------------------------->
+<!--                        IGNORE THIS SECTION                            -->
+<html>
+<head>
+<title>The Code Project</title>
+<style>
+BODY, P, TD { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt }
+H2,H3,H4,H5 { color: #ff9900; font-weight: bold; }
+H2 { font-size: 13pt; }
+H3 { font-size: 12pt; }
+H4 { font-size: 10pt; color: black; }
+PRE { BACKGROUND-COLOR: #FBEDBB; FONT-FAMILY: "Courier New", Courier, mono; WHITE-SPACE: pre; }
+CODE { COLOR: #990000; FONT-FAMILY: "Courier New", Courier, mono; }
+</style>
+<link rel="stylesheet" type=text/css href="http://www.codeproject.com/styles/global.css">
+</head>
+<body bgcolor="#FFFFFF" color=#000000>
+<!--------------------------------------------------------------------------->
+
+
+<!-------------------------------     STEP 1      --------------------------->
+<!--  Fill in the details (CodeProject will reformat this section for you) -->
+
+<pre>
+Title:       ASP.NET Common Web Page Class Library - Part 2
+Author:      Eric Woodruff
+Email:       Eric@EWoodruff.us
+Environment: Visual Studio .NET, IIS, ASP.NET, C#, VB.NET
+Keywords:    page, template, detect, data, change
+Level:       Intermediate
+Description: Detecting changes in data controls in ASP.NET web forms
+Section      ASP.NET
+SubSection   General
+</pre>
+
+<!-------------------------------     STEP 2      --------------------------->
+<!--  Include download and sample image information.                       -->
+
+
+<!-------------------------------     STEP 3      --------------------------->
+<!--  Add the article text. Please use simple formatting (<h2>, <p> etc)   -->
+
+<h2>Table of Contents</h2>
+<ul>
+    <li><a href="#Intro">Introduction</a></li>
+    <li><a href="#DCC">Data Change Checking</a>
+    <ul>
+        <li><a href="#DCCHow">How It Works</a></li>
+        <li><a href="#DCCGenCS">Generating the Client-side Code</a></li>
+        <li><a href="#DCCJSCode">The JavaScript Code</a></li>
+    </ul></li>
+    <li><a href="#Conclude">Conclusion</a></li>
+    <li><a href="#RevHist">Revision History</a></li>
+</ul>
+
+<a name="Intro"><h2>Introduction</h2></a>
+<p/>This is the second in a series of articles on a class library for
+ASP.NET applications that I have developed. It contains a set of common,
+reusable page classes that can be utilized in web applications as-is to
+provide a consistent look, feel, and set of features. New classes can also
+be derived from them to extend their capabilities. The features are all
+fairly modular, and may be extracted and placed into your own classes too.
+For a complete list of articles in the series along with a demonstration
+application and the code for the classes, see <a href="EWSWebPt1.asp">Part
+1</a>  [<a href="EWSWebPt1.asp" target=_blank>^</a> ].
+
+<p/>This article describes the data change checking features of the
+<code>BasePage</code> class. This is a fairly large section, so it was
+split out from the first article to keep it from getting too long. It
+covers the properties and methods related to the change checking features
+of the <code>BasePage</code> class as well as the client-side code used to
+implement it.
+
+<a name="DCC"><h2>Data Change Checking</h2></a>
+<p/>In a rich-client application, it is fairly easy to detect changes in
+data entry controls and warn the user that they are about to lose their
+changes when they attempt to leave the form. You also have full control
+over how they can leave the form or the application. In a web-based
+application, it is more difficult. You have some chance of catching the
+attempt to leave if they click a link or button on your page, but they may
+also leave by entering a new URL in the browser's address text box, they
+may navigate away by using the back, forward, or history links, or they may
+just close the browser. It can be quite irritating for the end-user to
+navigate away from the page only to realize that they did not save their
+changes first. Telling them "Then don't do that" just makes them cranky.
+
+<p/>The <code>BasePage</code> class and those derived from it provide a set
+of properties that will allow you to trap most attempts to leave the web
+form before the user has saved their changes, and ask them whether or not
+they really want to leave. When enabled, it will also track the dirty state
+of the form automatically. While it is not 100% effective, it does a pretty
+good job in most situations. With that said, here are the limitations:
+
+<ul>
+<li>This only works in Internet Explorer 4+ as it relies on the
+<code>OnBeforeUnload</code> event on the browser's window object. For
+non-IE browsers, the only support provided is dirty state tracking via the
+<code>BasePage.Dirty</code> property. It has only been tested in IE, FireFox,
+and Netscape so other browsers may still have issues not addressed here.
+
+<li>If you decide to leave anyway, you may get a double prompt about trying
+to leave without saving, in some cases. This usually occurs on links in
+<code>DataGrid</code> web controls (i.e., an "Add" command link button).
+This is more of an annoyance than anything.
+
+<li>It will exit without prompting if the active element is one you do not
+want to get prompted on (a Save button, for example), but it has the focus
+and you leave by doing something that does not interact with the page such
+as closing the browser, clicking the back button, etc. This is a rare case,
+but it can happen.
+
+<li>It may exit without prompting if a control has
+<code>AutoPostBack</code> enabled, and you leave the page without modifying
+any controls on the page after an auto-postback has occurred. This problem
+can be circumvented by the use of the <code>BasePage.Dirty</code> property.
+When <code>BasePage.CheckForDataChanges</code> is set to <code
+lang="cs">true</code>, the client-side code will detect changes and the page
+will automatically track the dirty state for you. You can also explicitly
+set it to <code lang="cs">true</code> in cases where no changes may have
+occurred client-side so that the user will get prompted if they attempt to
+leave the page later on (i.e., a button is clicked to fill in default
+values on a new record).
+
+<li>It only looks at the standard HTML controls on the page (text box, text
+area, checkbox, radio button, and select controls such as dropdown lists
+and list boxes). Since almost all of the ASP.NET web controls render as one
+of the standard HTML controls, this does not present any problems. However,
+if you use any ActiveX controls on the web page for data entry, they will
+not be checked. </li></ul>
+
+<a name="DCCHow"><h3>How It Works</h3></a>
+<p/>The <code>BasePage</code> class contains five properties that work
+together with a client-side JavaScript function to provide data change
+checking.
+
+<table cellSpacing=0 cellPadding=5 width="80%" border=1>
+  <tr>
+    <td bgColor=#fbedbb><b>Property</b></td>
+    <td bgColor=#fbedbb><b>Description</b></td>
+  </tr>
+  <tr>
+    <td vAlign=top><code>CheckForDataChanges</code></td>
+    <td>Set this Boolean property to <code lang="cs">true</code> to enable
+    data change checking. Set it to <code lang="cs">false</code> (the
+    default) to disable it. When enabled, the page will render a hidden
+    field, some extra JavaScript variables, and a function to check for
+    changes. The function is bound to the window object's
+    <code>OnBeforeUnload</code> event when the page loads. It is also
+    registered as an <code>OnSubmit</code> statement to allow automatic
+    tracking of the dirty state. Changes to the <code>BP_bIsDirty</code>
+    hidden field cannot occur in the <code>OnBeforeUnload</code> event so
+    they must be made in the <code>OnSubmit</code> event instead.</td>
+  </tr>
+  <tr>
+    <td vAlign=top><code>Dirty</code></td>
+    <td>This is a Boolean property that you can set to <code
+    lang="cs">true</code> to force the page to always prompt the user about
+    saving the changes prior to leaving. This is most useful in cases where
+    a postback has occurred to modify the state of the form (i.e., to
+    disable controls or load different values based on a selection in a
+    dropdown list). It will automatically get set to <code
+    lang="cs">true</code> by the client-side code if changes have been made
+    to the form controls. The <code>CheckForDataChanges</code> property
+    must be set to <code lang="cs">true</code> in order to use this property.
+    The prompting behavior is only available in Internet Explorer. For all
+    other browsers, it only tracks the dirty state. Do not forget to set
+    this property to <code lang="cs">false</code> after saving or canceling
+    edits to the page.</td>
+  </tr>
+  <tr>
+      <td vAlign=top><code>ConfirmLeaveMessage</code></td>
+      <td>This string property contains the message that will be displayed
+      when the user attempts to leave without first saving their changes
+      (Internet Explorer only). If not set, a default message is
+      displayed.</td>
+  </tr>
+  <tr>
+      <td vAlign=top><code>BypassPromptIds</code></td>
+      <td>This property is set to a string array of control IDs that should
+      not cause prompting even if changes occur (i.e., a Save or Cancel
+      button). When postback occurs due to a control with one of these IDs,
+      no prompting will occur even if changes have been made (Internet
+      Explorer only). The dirty flag will still get updated. If not set,
+      all controls that cause a postback will result in prompting if data
+      has been changed.</td>
+  </tr>
+  <tr>
+    <td vAlign=top><code>SkipDataCheckIds</code></td>
+    <td>This property is set to a string array of control IDs that should
+    be ignored when checking for changed data. For example, you may have a
+    read-only text box used to display text or messages that gets updated
+    during the course of using the form. Since it is not part of the saved
+    information, it can be ignored and will not prevent leaving the page if
+    it is the only thing that changed. If not set, all data entry controls
+    are checked for changes.</td>
+  </tr>
+</table>
+
+<p/>Change checking is usually enabled in the <code>Page_Load</code> event
+the first time the page is loaded. The <code>CheckForDataChanges</code>
+property is set to <code lang="cs">true</code> and the
+<code>BypassPromptIds</code> property is set to a list of controls that
+should not cause prompting to occur (i.e., a Save button, dropdown lists
+with <code>AutoPostBack</code> enabled, etc.). For example:
+
+<pre lang="cs">
+private void Page_Load(object sender, System.EventArgs e)
+{
+    if(Page.IsPostBack == false)
+    {
+        // Set up form for data change checking when
+        // first loaded.
+        <b>this.CheckForDataChanges</b> = true;
+        <b>this.BypassPromptIds</b> =
+            new string[] { "btnSave", "btnCancel",
+                           "chkLimitToTeam" }
+    }
+}
+</pre>
+
+<p/>If specifying the IDs of such controls as the sort links in data grid
+headers, you will need to run the page, view the source, and get the names
+of the link controls from the rendered HTML. Be sure to change the '$'
+characters in the names to ':' when specifying them in the bypass list, as
+the <code>__doPostback()</code> function changes them before the data
+changing checking code gets the ID.
+
+<p/>Changes in the data controls can only be detected from the point at
+which the user starts interacting with the page up to the point at which a
+postback occurs. If you have controls on the page that cause a postback,
+such as a button that alters the state of some controls but it does not
+actually save changes made up to that point, you may need to make use of
+the <code>Dirty</code> property. This is needed because once the page is
+rendered after the postback, it has no idea what the original values were
+prior to that. Setting the <code>Dirty</code> property to <code
+lang="cs">true</code> in the event handler for such postbacks will ensure
+that the user is prompted to save their changes before leaving the page.
+All it does is set a flag that the JavaScript function checks and, if true,
+always prompts the user to save their changes regardless of whether or not
+anything has actually been changed since the page was rendered.
+
+<a name="DCCGenCS"><h3>Generating the Client-side Code</h3></a>
+<p/>The rendering of the client-side variables and script occurs in the
+overridden <code>OnPreRender()</code> method. The code is fairly
+straightforward, and simply uses a <code>StringBuilder</code> object to
+format the variables and script code and then registers it with the page.
+The script is stored as a resource in the assembly so that you do not have
+to distribute it separately along with the assembly. Also, to insure that
+the correct form is affected by the code, a variable is rendered that
+contains the form's unique ID. While ASP.NET does limit you to one form
+with a <code lang="aspnet">runat='server'</code> attribute, it will let you
+have other regular HTML forms on the page without that attribute. By
+enforcing use of the web form's client-side name, it will not break any
+pages that may utilize other regular HTML forms.  The code below is for the
+.NET 1.1 version of the class.  The .NET 2.0 version varies only slightly
+with its use of the <code>Page</code> object's new methods for registering
+the script blocks, submit statement, and the hidden field.
+
+<pre lang="cs">
+protected override void OnPreRender(EventArgs e)
+{
+    StringBuilder sb;
+    string[] idList;
+
+    base.OnPreRender(e);
+
+    // If data change checking has been requested, output the
+    // dirty flag, exclusion arrays, confirm message, and the
+    // script.
+    if(this.CheckForDataChanges == true)
+    {
+        // Register a hidden field so that the client can pass
+        // back changes to the Dirty flag.
+        this.RegisterHiddenField("BP_bIsDirty",
+            this.Dirty.ToString(
+            CultureInfo.InvariantCulture).ToLower(
+            CultureInfo.InvariantCulture));
+
+        // Register an OnSubmit function call so that we can
+        // get the state of the Dirty flag and put it in the
+        // hidden field.  It can't occur in the OnBeforeUnload
+        // event as everything has been packaged up ready for
+        // sending to the server and changes made in that event
+        // don't get sent to the server.
+        this.RegisterOnSubmitStatement("BP_DirtyCheck",
+            "BP_funCheckForChanges(true);");
+
+        // Create a script block containing the array
+        // declarations, the data loss message variable, the
+        // dirty flag, and the change checking script.
+        sb = new StringBuilder(
+            "&lt;script type='text/javascript'&gt;\n&lt;!--\n" +
+            "var BP_arrBypassList = new Array(", 4096);
+
+        idList = this.BypassPromptIds;
+        if(idList != null)
+        {
+            sb.Append('\"');
+            sb.Append(String.Join("\",\"", idList));
+            sb.Append('\"');
+        }
+
+        sb.Append(");\nvar BP_arrSkipList = new Array(");
+        idList = this.SkipDataCheckIds;
+        if(idList != null)
+        {
+            sb.Append('\"');
+            sb.Append(String.Join("\",\"", idList));
+            sb.Append('\"');
+        }
+
+        sb.Append(");\nvar BP_strDataLossMsg = \"");
+        sb.Append(this.ConfirmLeaveMessage);
+        sb.Append("\";\nvar BP_strFormName = \"");
+
+        // BP_strFormName tells the script what form to use
+        // for the change checking.
+        sb.Append(this.PageForm.UniqueID);
+        sb.Append("\";\n//--&gt;\n&lt;/script&gt;\n");
+
+        // Add the reference to retrieve the script from the
+        // resource server handler.
+        sb.Append("&lt;script type='text/javascript' src='");
+        sb.Append(ResSrvHandler.ResSrvHandlerPageName);
+        sb.Append("?Res=DataChange.js'&gt;&lt;/script&gt;");
+
+        this.RegisterClientScriptBlock("BP_DCCJS",
+            sb.ToString());
+    }
+
+    ...
+}
+</pre>
+
+<p/>The <code>OnInit</code> method is overridden to retrieve the value of
+the hidden field when the page is created on the server. If change checking
+is enabled, it will set the <code>Dirty</code> property to the value of the
+hidden field as determined on the client during postback. If change
+checking is disabled, it will always be set to <code lang="cs">false</code>,
+as the field will not exist.
+
+<pre lang="cs">
+protected override void OnInit(EventArgs e)
+{
+    base.OnInit(e);
+
+    // Retrieve the state of the Dirty flag (if used)
+    this.Dirty = Convert.ToBoolean(Request.Form["BP_bIsDirty"],
+        CultureInfo.InvariantCulture);
+
+    ...
+}
+</pre>
+
+<a name="DCCJSCode"><h3>The JavaScript Code</h3></a>
+<p/>The JavaScript code is what makes it all work on the client side. When
+rendered, it consists of a hidden field that is set to the current value of
+the <code>Dirty</code> property, a set of variables that are populated with
+the values from the <code>ConfirmLeaveMessage</code>,
+<code>BypassPromptIds</code>, and <code>SkipDataCheckIds</code> properties,
+and the JavaScript functions <code>BP_funCheckForChanges()</code> and
+<code>BP_OnSubmit()</code>. Inline JavaScript code at the end of the script
+binds the change checking function to the window object's
+<code>OnBeforeUnload</code> event.
+
+<p/>The change checking function is also registered as part of the form's
+<code>OnSubmit</code> attribute to allow it to detect changes and set the
+hidden field to <code lang="jscript">true</code>. The client-side code module
+also substitutes the <code>BP_OnSubmit()</code> function as the web form's
+real <code>Submit</code> method. The original handler is saved as a new
+<code>BP_RealOnSubmit</code> method on the form. The function will call the
+original handler after calling the change checking function to update the
+dirty state flag. The reason for this extra work is that controls with
+<code>AutoPostBack</code> enabled, such as dropdown lists, call the form's
+<code>Submit</code> method directly and it does not fire the
+<code>OnSubmit</code> event. By substituting our own handler, we can still
+track changes to the form data in these cases.
+
+<pre lang="jscript">
+// Replace the OnSubmit event.  This is so that we can always
+// update the state of the Dirty flag even when controls with
+// AutoPostBack cause the submit.
+document.forms[BP_strFormName].BP_RealOnSubmit =
+    document.forms[BP_strFormName].submit;
+
+function BP_OnSubmit()
+{
+    BP_funCheckForChanges(true);
+
+    // It sometimes reports an error if OnBeforeUnload
+    // cancels it.  Ignore it.
+    try {
+        document.forms[BP_strFormName].BP_RealOnSubmit();
+    } catch(e) { }
+}
+
+document.forms[BP_strFormName].submit = BP_OnSubmit;
+
+// IE Only: Hook up the event handler for OnBeforeUnload
+window.onbeforeunload = BP_funCheckForChanges;
+</pre>
+
+<p/>When the user tries to leave the page, the change checking function is
+called and the following steps occur:
+
+<pre lang="jscript">
+function BP_funCheckForChanges(bInOnSubmit)
+{
+    var strID, nIdx, nNumOpts, nSkipCnt, nPos, nOptIdx;
+    var oElem, oOptions, oOpt, nDefSelIdx, nSelIdx;
+    var oForm = document.forms[BP_strFormName];
+    var nElemCnt = oForm.elements.length;
+    var bPrompt = (typeof(bInOnSubmit) == "undefined");
+    var ctlDirty = document.getElementsByName("BP_bIsDirty")[0];
+
+    // This prevents a double prompt that can occur when post
+    // back is not cancelled for a hyperlink-type control.
+    // Not sure why it happens but this works around it.
+    if(bPrompt == true &amp;&amp; BP_bOnBeforeUnloadFired == true)
+        return;
+
+    // Get current state of Dirty flag
+    var bChanged = (ctlDirty.value == "true");
+</pre>
+
+<p/>The first part initializes several variables for the function. The
+<code>bPrompt</code> variable is initially set to <code
+lang="jscript">true</code> or <code lang="jscript">false</code> based on
+whether or not a parameter was passed to the function. When passed a
+parameter, it has been called as part of the <code>OnSubmit</code> event
+and should never prompt, as we are only interested in updating the state of
+the dirty flag. When called as part of the <code>OnBeforeUnload</code>
+event, it should prompt unless told not to later on because of something in
+the bypass ID list. The reason for the separate calls is that the
+<code>OnBeforeUnload</code> event occurs after everything has been packaged
+up ready for sending to the server, and thus changes to the hidden field do
+not get sent back if made in that event. A side effect of this is that for
+non-IE browsers, you at least get dirty state tracking. The
+<code>bChanged</code> variable is set to the current value of the
+<code>BP_bIsDirty</code> hidden field. This allows it to maintain the dirty
+state and prompt to save changes even after a postback in which nothing
+else changed. Note that in order to get a reference to the hidden field, we
+have to use the <code>document.getElementsByName</code> method. This is
+because the page renders the registered hidden fields with a
+<code>name</code> attribute but without an <code>id</code> attribute. Using
+the "ByName" method insures that the code will work on non-IE browsers.
+
+<pre lang="jscript">
+// IE Only:  The event target is most likely the item that
+// caused the request to leave the page.  If it's in the list
+// of controls that can bypass the check, don't prompt.  The
+// control ID must be an exact match or must end with the name
+// (i.e. it's in a DataGrid).
+strID = "";
+oElem = document.getElementById("__EVENTTARGET");
+
+if(oElem == null || typeof(oElem) == "undefined" ||
+  oElem.value == "")
+{
+    // Check the active element if there is no event target
+    if(typeof(document.activeElement) != "undefined")
+    {
+        oElem = document.activeElement
+        strID = oElem.id;
+    }
+}
+else
+    strID = oElem.value;
+
+// Some elements may not have an ID but their parent element
+// might so grab that if possible (i.e. AREA elements in a MAP
+// element).
+if(strID == "" &amp;&amp; oElem != null &amp;&amp;
+  typeof(oElem) != "undefined")
+{
+    // Link buttons in DataGrids don't have IDs but do use
+    // __doPostBack().  If we see a link with that in its href,
+    // assume __doPostBack() is running and skip the check.
+    // The submission will call us again.
+    if(oElem.tagName == "A" &amp;&amp;
+      oElem.href.indexOf("__doPostBack") != -1)
+        return;
+
+    if(typeof(oElem.parentElement) != "undefined")
+        strID = oElem.parentElement.id;
+}
+
+if(strID != "")
+{
+    nSkipCnt = BP_arrBypassList.length;
+
+    for(nIdx = 0; nIdx &lt; nSkipCnt; nIdx++)
+        if(strID == BP_arrBypassList[nIdx])
+            bPrompt = false;
+        else
+        {
+            nPos = strID.length - BP_arrBypassList[nIdx].length;
+            if(nPos &gt;= 0)
+                if(strID.substr(nPos) == BP_arrBypassList[nIdx])
+                    bPrompt = false;
+        }
+}
+</pre>
+
+<p/>For Internet Explorer only, the event target element (the one that
+caused the postback) is checked to see if its control ID is in the bypass
+list. If so, the <code>bPrompt</code> flag is set to <code
+lang="jscript">false</code> so that no prompting occurs. For example, you do
+not want it to prompt the user to save their changes when the <b>Save</b>
+button is clicked. When checking the control ID, it looks for an exact
+match or one that ends in the ID from the list. The "ends with" match is
+there to handle controls embedded in <code>DataGrid</code> web controls.
+Their client-side IDs are altered based on the row they appear in to keep
+them unique. Since we do not know the unique ID, the partial match based on
+the ID assigned at design time will work.
+
+<pre lang="jscript">
+// Now we'll figure out if something changed
+nSkipCnt = BP_arrSkipList.length;
+
+for(nIdx = 0; !bChanged &amp;&amp; nIdx &lt; nElemCnt; nIdx++)
+{
+    oElem = oForm.elements[nIdx];
+
+    // If the control is in the list of ones to ignore,
+    // carry on.
+    for(nOptIdx = 0; nOptIdx &lt; nSkipCnt; nOptIdx++)
+    {
+        if(oElem.id == BP_arrSkipList[nOptIdx])
+            break;
+
+        nPos = oElem.id.length - BP_arrSkipList[nOptIdx].length;
+        if(nPos &gt;= 0)
+            if(oElem.id.substr(nPos) == BP_arrSkipList[nOptIdx])
+                break;
+    }
+
+    if(nOptIdx &lt; nSkipCnt)
+        continue;
+
+    // Check for changes based on the control type
+    if(oElem.type == "text" || oElem.tagName == "TEXTAREA")
+    {
+        if(oElem.value != oElem.defaultValue)
+            bChanged = true;
+    }
+    else
+        if(oElem.type == "checkbox" || oElem.type == "radio")
+        {
+            if(oElem.checked != oElem.defaultChecked)
+                bChanged = true;
+        }
+        else
+            if(oElem.tagName == "SELECT")
+            {
+                oOptions = oElem.options;
+                nNumOpts = oOptions.length;
+                nDefSelIdx = nSelIdx = 0;
+
+                // Search for a change in the default.  If
+                // nothing is explicitly marked as the default,
+                // element zero is assumed to have been the
+                // default.
+                for(nOptIdx = 0; nOptIdx &lt; nNumOpts; nOptIdx++)
+                {
+                    oOpt = oOptions[nOptIdx];
+
+                    if(oOpt.defaultSelected)
+                        nDefSelIdx = nOptIdx;
+
+                    if(oOpt.selected)
+                        nSelIdx = nOptIdx;
+                }
+
+                if(nDefSelIdx != nSelIdx)
+                    bChanged = true;
+            }
+}
+</pre>
+
+<p/>Next, each control is checked to see if the data it contains has been
+changed. If the control ID is in the list of elements to skip, it will be
+ignored. This allows you to have controls on the page that can be modified
+without causing it to prompt to save changes (i.e., message text areas
+etc.). As with the bypass list, the control ID can be an exact match or one
+ending in the specified ID.
+
+<p/>Changes are detected based on the control type. For text boxes and text
+areas, the <code>value</code> property is compared to the
+<code>defaultValue</code> property. For checkboxes and radio buttons, the
+<code>checked</code> property is compared to the
+<code>defaultChecked</code> property. For <code>select</code> controls
+(dropdown lists and list boxes), each item in the collection is scanned.
+The current selection is found and compared to the item that was marked as
+the default selection to see if there was a change. If no item in the list
+was marked as the default, the first element is considered to be the
+default.
+
+<pre lang="jscript">
+if(bChanged)
+{
+    // Pass the dirty state back to the server
+    ctlDirty.value = "true";
+
+    // If prompting, set the message
+    if(bPrompt)
+    {
+        event.returnValue = BP_strDataLossMsg;
+        BP_bOnBeforeUnloadFired = true;
+        window.setTimeout("BP_funClearIfCancelled()", 1000);
+    }
+}
+</pre>
+
+<p/>If no changes were found and the <code>Page</code> class's dirty flag
+is still false, the function exits and no prompting occurs. No prompting
+occurs if called as part of the <code>OnSubmit</code> event either.
+
+<p/>For Internet Explorer, if a change was detected, or the page class's
+dirty flag was set to true and it was called as part of the
+<code>OnBeforeUnload</code> event, the <code>event.returnValue</code>
+property is set to the confirmation message. This causes the browser to pop
+up a message box asking whether or not it is okay to leave the page. The
+confirmation message is displayed in the message box preceded by the
+question "Are you sure you want to navigate away from this page?" and
+followed by instructions to click OK to continue or Cancel to stay on the
+current page. Those two messages are added by the browser and cannot be
+changed. Only the text that you supply that appears in the middle can be
+modified via the <code>ConfirmLeaveMessage</code> property.
+
+<p/>In addition to setting the message, we also set a flag variable
+(<code>BP_bOnBeforeUnloadFired</code>) that prevents a double prompt that
+would normally occur under certain conditions. It also sets up a time out
+event that calls the <code>BP_funClearIfCancelled</code> function. This
+serves two purposes if post-back is cancelled. It clears the flag that
+prevents the double prompt, and it also clears <code>__EVENTTARGET</code>
+as it doesn't get cleared if you cancel an auto-postback item and then
+click a button, for example. If not cleared, it could cause unexpected
+behavior in the server side code in some cases where that variable is used.
+
+<a name="Conclude"><h2>Conclusion</h2></a>
+<p/>I have used the <code>BasePage</code> class and a few derived from it
+in all of my ASP.NET applications, to give them a consistent look, feel,
+and set of features. The data change checking features, though full use is
+limited to Internet Explorer, have been extremely helpful in eliminating a
+common user complaint about losing data due to forgetting to save changes
+before leaving a page. Hopefully, you will find this class and the others
+in the library, or parts of them, as useful as I have.
+
+<a name="RevHist"><h2>Revision History</h2></a>
+<table cellspacing="0" cellpadding="0" border="0">
+  <tr>
+    <td valign="top">04/02/2006</td>
+    <td width="50">&nbsp;</td>
+    <td><b>Breaking Changes:</b> Property and method names have been
+        modified to conform to the .NET naming conventions with regard to
+        casing (<code>BasePage.BypassPromptIds</code> and
+        <code>BasePage.SkipDataCheckIds</code>).</td>
+  </tr>
+  <tr>
+    <td colspan="3">&nbsp;</td>
+  </tr>
+  <tr>
+    <td valign="top">11/26/2004</td>
+    <td width="50">&nbsp;</td>
+    <td>Changes in this release:
+      <ul>
+        <li>Made some changes based on suggestions from Danny Dot Net to
+        prevent the double prompt when posting back via a hyperlink-type
+        control. A few other changes were made that also eliminate the
+        double prompt in almost all other situations as well.</li>
+
+        <li>Fixed up a potential problem with the __EVENTTARGET variable
+        not being cleared if post back is cancelled.</li>
+      <ul></td>
+  </tr>
+  <tr>
+    <td colspan="3">&nbsp;</td>
+  </tr>
+  <tr>
+    <td valign="top">12/01/2003</td>
+    <td width="50">&nbsp;</td>
+    <td>Initial release</td>
+  </tr>
+</table>
+
+<!-------------------------------    That's it!   --------------------------->
+</body>
+</html>

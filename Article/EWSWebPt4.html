@@ -1,0 +1,444 @@
+<!--------------------------------------------------------------------------->
+<!--                           INTRODUCTION
+
+ The Code Project article submission template (HTML version)
+
+Using this template will help us post your article sooner. To use, just
+follow the 3 easy steps below:
+
+     1. Fill in the article description details
+     2. Add links to your images and downloads
+     3. Include the main article text
+
+That's all there is to it! All formatting will be done by our submission
+scripts and style sheets.
+
+-->
+<!--------------------------------------------------------------------------->
+<!--                        IGNORE THIS SECTION                            -->
+<html>
+<head>
+<title>The Code Project</title>
+<style>
+BODY, P, TD { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt }
+H2,H3,H4,H5 { color: #ff9900; font-weight: bold; }
+H2 { font-size: 13pt; }
+H3 { font-size: 12pt; }
+H4 { font-size: 10pt; color: black; }
+PRE { BACKGROUND-COLOR: #FBEDBB; FONT-FAMILY: "Courier New", Courier, mono; WHITE-SPACE: pre; }
+CODE { COLOR: #990000; FONT-FAMILY: "Courier New", Courier, mono; }
+</style>
+<link rel="stylesheet" type=text/css href="http://www.codeproject.com/styles/global.css">
+</head>
+<body bgcolor="#FFFFFF" color=#000000>
+<!--------------------------------------------------------------------------->
+
+
+<!-------------------------------     STEP 1      --------------------------->
+<!--  Fill in the details (CodeProject will reformat this section for you) -->
+
+<pre>
+Title:       ASP.NET Common Web Page Class Library - Part 4
+Author:      Eric Woodruff
+Email:       Eric@EWoodruff.us
+Environment: Visual Studio .NET, IIS, ASP.NET, C#, VB.NET
+Keywords:    page, template, render, link, regular expression, validation summary
+Level:       Intermediate
+Description: A utility class containing some useful features for ASP.NET applications
+Section      ASP.NET
+SubSection   General
+</pre>
+
+<!-------------------------------     STEP 2      --------------------------->
+<!--  Include download and sample image information.                       -->
+
+
+<!-------------------------------     STEP 3      --------------------------->
+<!--  Add the article text. Please use simple formatting (<h2>, <p> etc)   -->
+
+<h2>Table of Contents</h2>
+<ul>
+    <li><a href="#Intro">Introduction</a></li>
+    <li><a href="#HtmlEncode">HTML Encoding</a></li>
+    <li><a href="#LinkEncode">Link Encoding</a></li>
+    <li><a href="#CvtToLink">Converting Validation Messages to Hyperlinks</a></li>
+    <li><a href="#Conclude">Conclusion</a></li>
+    <li><a href="#RevHist">Revision History</a></li>
+</ul>
+
+<a name="Intro"><h2>Introduction</h2></a>
+<p/>This is the fourth in a series of articles on a class library for
+ASP.NET applications that I have developed. It contains a set of common,
+reusable page classes that can be utilized in web applications as-is to
+provide a consistent look, feel, and set of features. New classes can also
+be derived from them to extend their capabilities. The features are all
+fairly modular and may be extracted and placed into your own classes too.
+For a complete list of articles in the series along with a demonstration
+application and the code for the classes, see <a href="EWSWebPt1.asp">Part
+1</a>  [<a href="EWSWebPt1.asp" target=_blank>^</a> ].
+
+<p/>This article describes the only non-page derived class in the library,
+<code>PageUtils</code>, along with the remaining methods of the
+<code>BasePage</code> class that are somewhat similar in nature to those
+contained in it. <code>PageUtils</code> contains a set of utility functions
+that you may find useful in any ASP.NET application. Each of the features
+is described below. The class itself is sealed and all public properties
+and methods are static. As such, the constructor is declared private as
+there is no need to instantiate the class.
+
+<a name="HtmlEncode"><h2>HTML Encoding</h2></a>
+<p/>The first method presented is <code>HtmlEncode</code>, which can be
+called to encode an object for output to an HTML page. It encodes any HTML
+special characters as literals instead of letting the browser interpret
+them. In addition, it replaces multiple spaces, tabs, and line breaks with
+their HTML equivalents thus preserving the layout of the specified text.
+The size of expanded tab characters can be altered using the
+<code>TabSize</code> property. Set it to the number of non-breaking spaces
+that should replace the tab character. The default is four.
+
+<p/>If the object is <code lang="cs">null</code>
+(<code lang="vbnet">Nothing</code>), results in an empty string, or is a
+single space, a non-breaking space is returned. In conjunction with the
+above-described behavior, this is useful for displaying database fields
+that contain HTML special characters, formatting, or nulls such as those
+with the text or memo data type.
+
+<p/>As an added bonus, if the <code>encodeLinks</code> parameter is true,
+URLs, UNCs, and e-mail addresses are converted to hyperlinks whenever
+possible using the <code>EncodeLinks</code> method (see below). If false,
+they are not converted and will be rendered as normal text. As shown below,
+the code is fairly simple and requires little in the way of additional
+explanation.
+
+<pre lang="cs">
+public static string HtmlEncode(Object objText, bool encodeLinks)
+{
+    StringBuilder sb;
+    string text;
+
+    if(objText != null)
+    {
+        text = objText.ToString();
+
+        if(text.Length != 0)
+        {
+            // Create tab expansion string if not done already
+            if(expandTabs == null)
+                expandTabs = new String(' ',
+                    PageUtils.TabSize).Replace(" ", "&amp;nbsp;");
+
+            // Encode the string
+            sb = new StringBuilder(
+                HttpUtility.HtmlEncode(text), 256);
+
+            sb.Replace("  ", "&amp;nbsp;&amp;nbsp;");  // Two spaces
+            sb.Replace("\t", expandTabs);
+            sb.Replace("\r", "");
+            sb.Replace("\n", "&lt;br&gt;");
+
+            text = sb.ToString();
+
+            if(text.Length &gt; 1)
+            {
+                if(!encodeLinks)
+                    return text;
+
+                // Try to convert URLs, UNCs, and e-mail
+                // addresses to links.
+                return PageUtils.EncodeLinks(text);
+            }
+
+            if(text.Length == 1 &amp;&amp; text[0] != ' ')
+                return text;
+        }
+    }
+
+    return "&amp;nbsp;";
+}
+</pre>
+
+<a name="LinkEncode"><h2>Link Encoding</h2></a>
+<p/>The second method presented is <code>EncodeLinks</code>. This method is
+called by <code>HtmlEncode</code> but can also be called directly by your
+code. It takes the passed string and finds all URLs, UNCs, and e-mail
+addresses and converts them to clickable hyperlinks suitable for rendering
+in an HTML page. For UNC paths, it will include any text up to the first
+whitespace character. If the path contains spaces, you can enclose the
+entire path in angle brackets (i.e., <i>&lt;\\Server\Folder\Name With
+Spaces&gt;</i>) and the encoder will include all text between the angle
+brackets in the hyperlink. The angle brackets will not appear in the
+encoded hyperlink.
+
+<pre lang="cs">
+public static string EncodeLinks(string text)
+{
+    // We'll create these on first use and keep them around
+    // for subsequent calls to save resources.
+    if(reURL == null)
+    {
+        reURL = new Regex(@"(((file|news|(ht|f|nn)tp(s?))://)|" +
+            @"(www\.))+[\w()*\-!_%]+.[\w()*\-/.!_#%]+[\w()*\-/" +
+            @".!_#%]*((\?\w+(\=[\w()*\-/.!_#%]*)?)(((&amp;amp;|&amp;(?" +
+            @"!\w+;))(\w+(\=[\w()*\-/.!_#%]*)?))+)?)?",
+            RegexOptions.IgnoreCase);
+        reUNC = new Regex(@"(\\{2}\w+(\\((&amp;.{2,8};|" +
+            @"[\w\-\.,@?^=%&amp;:/~\+#\$])*[\w\-\@?^=%&amp;/~\+#\$])?)" +
+            @"*)|((\&lt;|\&amp;lt;)\\{2}\w+(\\((&amp;.{2,8};|" +
+            @"[\w\-\.,@?^=%&amp;:/~\+#\$ ])*)?)*(\&gt;|\&amp;gt;))",
+            RegexOptions.IgnoreCase);
+        reEMail = new Regex(@"([a-zA-Z0-9_\-])([a-zA-Z0-9_\-\." +
+            @"]*)@(\[((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]" +
+            @"[0-9]|[0-9])\.){3}|((([a-zA-Z0-9\-]+)\.)+))(" +
+            @"[a-zA-Z]{2,}|(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|" +
+            @"[1-9][0-9]|[0-9])\])", RegexOptions.IgnoreCase);
+        reTSUNC = new Regex(
+            @"\.?((&amp;\#\d{1,3}|&amp;\w{2,8});((&amp;\#\d{1,3}|&amp;" +
+            @"\w{2,8}))?)+\w*$");
+
+        urlMatchEvaluator = new MatchEvaluator(OnUrlMatch);
+        uncMatchEvaluator = new MatchEvaluator(OnUncMatch);
+    }
+
+    // Do the replacements
+    text = reURL.Replace(text, urlMatchEvaluator);
+    text = reUNC.Replace(text, uncMatchEvaluator);
+    text = reEMail.Replace(text,
+        @"&lt;a href='mailto:$&amp;'&gt;$&amp;&lt;/a&gt;");
+
+    return text;
+}
+</pre>
+
+<p/>As you can see, the method uses regular expressions to search for and
+replace each URL, UNC, and e-mail address. The expressions used should
+catch just about all variations of each type. The regular expression
+objects are created on first use and are kept around for subsequent calls
+to save a little time. For URLs and UNCs, the following match evaluators
+handle the actual work of the replacement:
+
+<pre lang="cs">
+// Replace a URL with a link to the URL.  This checks for a
+// missing protocol and adds it if necessary.
+private static string OnUrlMatch(Match match)
+{
+    StringBuilder sb = new StringBuilder("&lt;a href='", 256);
+    string url = match.Value;
+
+    // Use default HTTP protocol if one wasn't specified
+    if(url.IndexOf("://") == -1)
+        sb.Append("http://");
+
+    sb.Append(url);
+    sb.Append("' target='_BLANK'&gt;");
+    sb.Append(url);
+    sb.Append("&lt;/a&gt;");
+
+    return sb.ToString();
+}
+
+// Replace a UNC with a link to the UNC.  This strips off any
+// containing brackets (plain or encoded) and flips the slashes.
+private static string OnUncMatch(Match match)
+{
+    StringBuilder sb = new StringBuilder("&lt;a href='file:", 256);
+    string unc = match.Value;
+
+    // Strip brackets if found.  If it has encoded brackets,
+    // strip them too.
+    if(unc[0] == '&lt;')
+        unc = unc.Substring(1, unc.Length - 2);
+    else
+        if(unc.StartsWith("&amp;lt;"))
+            unc = unc.Substring(4, unc.Length - 8);
+
+    // Move trailing special characters outside the link
+    Match m = reTSUNC.Match(unc);
+    if(m.Success == true)
+        unc = reTSUNC.Replace(unc, "");
+
+    sb.Append(unc);
+    sb.Append("' target='_BLANK'&gt;");
+
+    // Replace backslashes with forward slashes
+    sb.Replace('\\', '/');
+
+    sb.Append(unc);
+    sb.Append("&lt;/a&gt;");
+
+    if(m.Success == true)
+        sb.Append(m.Value);
+
+    return sb.ToString();
+}
+</pre>
+
+<p/>A regular expression match evaluator is like a callback. Each time the
+regular expression finds a match, it calls the evaluator. Its job is to
+take the found text and modify it in any way necessary and then return it
+to the regular expression so that it can be used to replace the original
+text. In these two cases, the match evaluators add the anchor tag and
+ensure that the links are formatted appropriately.
+
+<a name="CvtToLink"><h2>Converting Validation Messages to Hyperlinks</h2></a>
+<p/>In my applications, I have come to favor the validation summary control
+to contain all validation error messages generated by the page. It keeps
+them all in one location and does not adversely affect the layout of the
+controls in the form when they are made visible. The drawback is that on a
+form with a large number of controls and validation conditions, it can
+sometimes be difficult to match each message to its control, especially if
+the form is long enough to require scrolling around to find it. As such, I
+have added functionality to the <code>BasePage</code> class to
+automatically convert all validation control error messages that are set to
+appear in a validation summary control to clickable hyperlinks that will
+take you directly to the offending field by giving it the focus.
+
+<pre lang="cs">
+protected virtual void ConvertValMsgsToLinks()
+{
+    BaseValidator bv;
+
+    foreach(IValidator val in this.Validators)
+    {
+        bv = val as BaseValidator;
+
+        if(bv != null &amp;&amp; bv.Visible == true &amp;&amp;
+          bv.ControlToValidate.Length &gt; 0 &amp;&amp;
+          bv.Display == ValidatorDisplay.None)
+            bv.ErrorMessage = MakeMsgLink(bv.ControlToValidate,
+                bv.ErrorMessage, this.MsgLinkCssClass);
+    }
+}
+</pre>
+
+<p/>A call to <code>ConvertValMsgsToLinks</code> is done as the very first
+step in the overridden <code>Render</code> method. It iterates over the
+page's <code>Validators</code> collection. The validator control must be
+visible, must have its <code>ControlToValidate</code> property set to a
+control ID, and must have its <code>Display</code> property set to
+<code>None</code> indicating that it will appear in a validation summary
+control. If all of the necessary conditions are met, a call is placed to
+the <code>MakeMsgLink</code> method to convert the error message to a
+hyperlink.
+
+<p/>Note that since this occurs within the rendering step, changes to the
+error messages are not retained. If the page posts back, the error messages
+are restored from view state and will be in their non-hyperlink form. When
+the page renders during the postback, the messages will be converted to
+hyperlinks again provided that they still meet the necessary conditions. I
+chose this approach so that it is transparent to users of the class, is
+non-intrusive, and will not break any code that expects the messages to be
+in their non-hyperlink form. Derived classes can override this method to
+extend or suppress this behavior.
+
+<p/><b>Note:</b> If extracting the above method for use in your own
+classes, be sure to override the page's <code>Render</code> method and call
+it. If not, the links will not be converted.
+
+<pre lang="cs">
+public string MakeMsgLink(string id, string msg, string cssClass)
+{
+    string newClass;
+
+    // Don't bother if it's null, empty, or already in the form
+    // of a link.
+    if(msg == null || msg.Length == 0 || msg.StartsWith("&lt;a "))
+        return msg;
+
+    StringBuilder sb = new StringBuilder(512);
+
+    // Add the anchor tag and the optional CSS class
+    sb.Append("&lt;a ");
+
+    newClass = (cssClass == null) ?
+        this.MsgLinkCssClass : cssClass;
+
+    if(newClass != null && newClass.Length &gt; 0)
+    {
+        sb.Append("class='");
+        sb.Append(newClass);
+        sb.Append("' ");
+    }
+
+    // An HREF is included that does nothing so that we can use
+    // the hover style to do stuff like underline the link when
+    // the mouse is over it.  OnClick performs the action and
+    // returns false so that we don't trigger IE's
+    // OnBeforeUnload event which may be tied to data change
+    // checking code.
+
+    // NOTE: OnPreRender registers the script containing the
+    // function.  Tell the function to use the "Find Control"
+    // method to locate the ID.  That way, it works for controls
+    // embedded in data grids.
+    sb.Append("href='javascript:return false;' " +
+        "onclick='javascript: return BP_funSetFocus(\"");
+    sb.Append(id);
+    sb.Append("\", true);'&gt;");
+    sb.Append(msg);
+    sb.Append("&lt;/a&gt;");
+
+    return sb.ToString();
+}
+</pre>
+
+<p/>The <code>MakeMsgLink</code> method will convert the passed text into a
+hyperlink that transfers focus to the control with the specified ID. The
+Set Focus script, described in <a href="EWSWebPt1.asp">part one</a>  of
+this series, controls setting the focus to the control. As such, the
+specified ID can be an exact match or the ending part of an ID (see
+<a href="EWSWebPt1.asp">part one</a> for details). An optional CSS class name
+can be specified that will be applied to the hyperlink. If
+<code lang="cs">null</code>, it uses the one defined by the
+<code>MsgLinkCssClass</code> property. By default, it is set to the value
+of the <code>BasePage.MsgLinkCssName</code> constant which is currently set
+to the style name <b>ErrorMsgLink</b>. The class name should appear in
+the stylesheet associated with the application. As noted, a dummy
+<code lang="html">href</code> is added to the link so that you can add a
+<code>hover</code> style to the CSS class. For example, in my applications,
+the error messages display as normal text and show an underline as the
+mouse passes over them.
+
+<a name="Conclude"><h2>Conclusion</h2></a>
+<p/>Although small, the <code>PageUtils</code> class contains some very
+helpful features.  The validation message link feature of
+<code>BasePage</code> can also make the validation summary control more
+user friendly.  Hopefully, you will find this class and the others in the
+library, or parts of them, as useful as I have.
+
+<a name="RevHist"><h2>Revision History</h2></a>
+<table cellspacing="0" cellpadding="0" border="0">
+  <tr>
+    <td valign="top">04/02/2006</td>
+    <td width="50">&nbsp;</td>
+    <td>Changes in this release:
+      <ul>
+        <li>Reworked the URL encoding regular expression in PageUtils so
+        that it includes a few more protocols, includes all valid URL
+        characters, handles URLs with parameters, and does not include
+        special characters after the URL.</li>
+
+        <li><b>Breaking Change:</b> Property and method names have been
+modified to conform to the .NET naming conventions with regard to casing
+(<code>PageUtils.HtmlEncode</code>, <code>BasePage.MsgLinkCssClass</code>,
+and <code>BasePage.MsgLinkCssName</code>).</li>
+      </ul></td>
+    </tr>
+    <tr>
+        <td valign="top">11/26/2004</td>
+        <td width="50">&nbsp;</td>
+        <td>Made some changes to the URL and UNC link encoding regular
+expressions to make them more accurate.</td>
+  </tr>
+  <tr>
+    <td colspan="3">&nbsp;</td>
+  </tr>
+  <tr>
+    <td valign="top">12/01/2003</td>
+    <td width="50">&nbsp;</td>
+    <td>Initial release</td>
+  </tr>
+</table>
+
+<!-------------------------------    That's it!   --------------------------->
+</body>
+</html>

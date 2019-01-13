@@ -1,0 +1,5 @@
+//=============================================================================
+// File    : SetFocus.js
+// Author  : Eric Woodruff  (Eric@EWoodruff.us)
+// Updated : Fri 11/26/2004
+function BP_funSetFocus(a,b){var c,d,e,f,g,h;if(b==false){f=document.getElementById(a);if(f!=null&&typeof(f)!="undefined"&&(typeof(f.id)!="string"||f.id!=a))b=true;}if(b==true){h=document.getElementsByTagName("*");for(d=0;d<h.length;d++){f=h[d];if(typeof(f.id)!="undefined"){e=f.id.indexOf(a);if(e!=-1&&f.id.substr(e)==a)break;}else f=null;}}if(f==null||typeof(f)=="undefined")return false;if(typeof(f.parentElement)!="undefined"){g=f.parentElement;while(g!=null&&g.tagName!="PageView")g=g.parentElement;if(g!=null&&g.tagName=="PageView"){c=g.PageIndex;g=g.parentElement;if(g!=null&&g.tagName=="MultiPage"){g.selectedIndex=c;h=document.getElementsByTagName("TabStrip");for(d=0;d<h.length;d++)if(h[d].targetID==g.id){h[d].selectedIndex=c;break;}}}}if(f.tagName=="TABLE"){f=f.cells(0);f=f.firstChild;}f.focus();if(f.type=="text"||f.tagName=="TEXTAREA")f.select();return false;}

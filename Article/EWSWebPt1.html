@@ -1,0 +1,1242 @@
+<!--------------------------------------------------------------------------->
+<!--                           INTRODUCTION
+
+ The Code Project article submission template (HTML version)
+
+Using this template will help us post your article sooner. To use, just
+follow the 3 easy steps below:
+
+     1. Fill in the article description details
+     2. Add links to your images and downloads
+     3. Include the main article text
+
+That's all there is to it! All formatting will be done by our submission
+scripts and style sheets.
+
+-->
+<!--------------------------------------------------------------------------->
+<!--                        IGNORE THIS SECTION                            -->
+<html>
+<head>
+<title>The Code Project</title>
+<style>
+BODY, P, TD { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt }
+H2,H3,H4,H5 { color: #ff9900; font-weight: bold; }
+H2 { font-size: 13pt; }
+H3 { font-size: 12pt; }
+H4 { font-size: 10pt; color: black; }
+PRE { BACKGROUND-COLOR: #FBEDBB; FONT-FAMILY: "Courier New", Courier, mono; WHITE-SPACE: pre; }
+CODE { COLOR: #990000; FONT-FAMILY: "Courier New", Courier, mono; }
+</style>
+<link rel="stylesheet" type=text/css href="http://www.codeproject.com/styles/global.css">
+</head>
+<body bgcolor="#FFFFFF" color=#000000>
+<!--------------------------------------------------------------------------->
+
+
+<!-------------------------------     STEP 1      --------------------------->
+<!--  Fill in the details (CodeProject will reformat this section for you) -->
+
+<pre>
+Title:       ASP.NET Common Web Page Class Library - Part 1
+Author:      Eric Woodruff
+Email:       Eric@EWoodruff.us
+Environment: Visual Studio .NET, IIS, ASP.NET, C#, VB.NET
+Keywords:    page, template, focus, detect, change, error, enable, disable, authentication
+Level:       Intermediate
+Description: A set of common, reusable page classes for ASP.NET applications
+Section      ASP.NET
+SubSection   General
+</pre>
+
+<!-------------------------------     STEP 2      --------------------------->
+<!--  Include download and sample image information.                       -->
+
+<ul class=download>
+<li><a href="http://www.codeproject.com/aspnet/EWSWebPt1/EWSWeb11.zip">Download .NET 1.1 source - 448 Kb</a></li>
+<li><a href="http://www.codeproject.com/aspnet/EWSWebPt1/EWSWeb20.zip">Download .NET 2.0 source - 400 Kb</a></li>
+</ul>
+
+<!-------------------------------     STEP 3      --------------------------->
+<!--  Add the article text. Please use simple formatting (<h2>, <p> etc)   -->
+
+
+<h2>Table of Contents</h2>
+<ul>
+    <li><a href="#Intro">Introduction</a>
+    <ul>
+        <li><a href="#Embed">Embedded Resources</a></li>
+        <li><a href="#Compress">Script Compression</a></li>
+        <li><a href="#UseAsm">Using the Assembly in Your Projects</a></li>
+        <li><a href="#UsePgClass">Using BasePage and Its Derived Classes In Your Own Applications</a></li>
+        <li><a href="#NoStyles">No Styles In Design View</a> </li></li>
+    </ul></li>
+    <li><a href="#BasePage">The BasePage Class</a>
+    <ul>
+        <li><a href="#EnableDisable">Enabling and Disabling Form Controls</a></li>
+        <li><a href="#SetFocus">Setting Control Focus</a></li>
+        <li><a href="#AuthType">Detecting the Authentication Type</a></li>
+        <li><a href="#OnError">Enhanced Error Information</a></li>
+    </ul></li>
+    <li><a href="#RenderedPage">The RenderedPage Class</a>
+    <ul>
+        <li><a href="#HdrFtr">Generation of Common Header and Footer Tags</a></li>
+        <li><a href="#AddCtl">Adding Additional Controls to the Form at Runtime</a></li>
+        <li><a href="#MenuPage">The MenuPage and VerticalMenuPage Classes</a></li>
+    </ul></li>
+    <li><a href="#Conclude">Conclusion</a></li>
+    <li><a href="#RevHist">Revision History</a></li>
+</ul>
+
+<a name="Intro"><h2>Introduction</h2></a>
+<p/>This is the first in a series of articles on a class library for
+ASP.NET applications that I have developed. It contains a set of common,
+reusable page classes that can be utilized in web applications as-is to
+provide a consistent look, feel, and set of features. New classes can also
+be derived from them to extend their capabilities. The features are all
+fairly modular, and may be extracted and placed into your own classes too.
+The classes in the assembly include:
+
+<ul>
+<li><code>BasePage</code> - Described in this article, continued in
+<a href="EWSWebPt2.asp">Part 2</a> [<a href="EWSWebPt2.asp" target=_blank>^</a>]
+which covers the data change checking features of the class, and in
+<a href="EWSWebPt3.asp">Part 3</a> [<a href="EWSWebPt3.asp" target=_blank>^</a>]
+which covers the features that allow it to e-mail its rendered content.</li>
+
+<li><code>RenderedPage</code>, <code>MenuPage</code>, and
+<code>VerticalMenuPage</code> - Described in this article.  These provide a
+way for .NET 1.1 applications to create pages that automatically render all
+the common header and footer HTML tags.</li>
+
+<li><code>PageUtils</code> - A utility class for the library described in
+<a href="EWSWebPt4.asp">Part 4</a> [<a href="EWSWebPt4.asp" target=_blank>^</a>].
+This also covers a few methods found in the <code>BasePage</code> class
+related to converting validation messages into clickable links.</li>
+</ul>
+
+<p/>The downloads contains a small demo application in C# and VB.NET that
+makes use of the classes. To try out the demo applications, create two
+virtual directories in IIS and point them at the two demo folders:
+
+<ul>
+    <li>Use <i>\DotNet\Web\EWSWeb\EWSWebDemoCS</i> with a virtual directory
+name of <i>EWSWebDemoCS11</i> and <i>\DotNet\Web\EWSWeb\EWSWebDemoVB</i>
+with a virtual directory name of <i>EWSWebDemoVB11</i> for the .NET 1.1
+version.</li>
+
+    <li>Use <i>\DotNet20\Web\EWSWeb\EWSWebDemoCS</i> with a virtual
+directory name of <i>EWSWebDemoCS20</i> and
+<i>\DotNet20\Web\EWSWeb\EWSWebDemoVB</i> with a virtual directory name of
+<i>EWSWebDemoVB20</i> for the .NET 2.0 version.
+</ul>
+
+The startup page in each application is <i>Default.aspx</i>. The demo
+projects are set up to compile and run on a development machine that has
+Visual Studio .NET and IIS running on it. If you are using a remote server,
+you will need to set up the virtual directories, build the projects, and
+copy them to the server location. When opening the pages in design view the
+very first time, you may get an error stating that they cannot be viewed.
+If this occurs, rebuild the projects so that the assembly containing the
+base classes exists.
+
+<p/>For the e-mail part of the demo, you will need the SMTP service on the
+web server or access to a separate SMTP server. The error page demos use an
+e-mail address stored in the <i>Web.config</i> file that is currently set
+to a dummy address. You should modify the address specified by the
+<code>ErrorRptEMail</code> key in the <code>appSettings</code> section to
+make it valid. The e-mail page feature can also use an optional configuration
+option to control the name of the SMTP server
+(<code>EMailPage_SmtpServer</code>).
+
+<a name="Embed"><h3>Embedded Resources</h3></a>
+<p/>The library contains some client-side script files. Rather than
+distributing and installing them separately, they are embedded in the
+assembly as resources that are extracted and returned to the client browser
+at runtime. For more information on how this is implemented, see the
+included help file and the following <b>Code Project</b> article: <a
+href="http://www.codeproject.com/aspnet/ResSrvPage.asp">A Resource Server
+Handler Class For Custom Controls</a> [<a
+href="http://www.codeproject.com/aspnet/ResSrvPage.asp"
+target=_blank>^</a>].
+
+<p/>For the .NET 1.1 version, the embedded resources require that an HTTP
+handler entry be added to the <i>Web.config</i> file. This is a simple
+procedure and requires nothing more than copying and pasting a definition
+from the demo into your own project's <i>Web.config</i> file. Refer to the
+supplied help file and the article noted above, for more information.  .NET
+2.0 provides a built-in method of serving embedded resources so this step is
+not necessary for applications using the .NET 2.0 version of the assembly.
+
+<a name="Compress"><h3>Script Compression</h3></a>
+<p/>The scripts are also compressed during the build step for the project
+using the JavaScript compressor described in the article <a
+href="http://www.codeproject.com/csharp/JSCompress.asp">A JavaScript
+Compression Tool for Web Applications</a> [<a
+href="http://www.codeproject.com/csharp/JSCompress.asp"
+target=_blank>^</a>]. This reduces the size of the scripts by removing
+comments and extraneous whitespace so that they take up less space. If
+you'd prefer to not use script compression, you can remove it from the
+pre-build step by opening the project, right click the project name in the
+<b>Solution Explorer</b>, select <b>Properties</b>, expand the <b>Common
+Properties</b> folder, and select the <b>Build Events</b> sub-item. Click
+in the <b>Pre-build Event Command Line</b> option and delete the command
+line that you see there. Copy the scripts from the <i>ScriptsDev</i> folder
+to the <i>Scripts</i> folder to replace the existing compressed versions
+distributed with the library. The <i>ScriptsDev</i> folder can be deleted
+from the project if not using the compressor.
+
+<a name="UseAsm"><h3>Using the Assembly in Your Projects</h3></a>
+<p/>The <code>BasePage</code> class and the others in the library are
+included in the sample project. They are compiled into an assembly that you
+can reference in your own projects. The sections below describe each of the
+main features of the class and the methods and properties that are used to
+implement them. If you are already using a custom page class in your
+applications, you can simply extract the parts that interest you for
+inclusion in your own projects.
+
+<p/>An HTML help file is included in the source code download that contains
+more extensive documentation on the classes in the assembly. It was
+generated using <a href="http://ndoc.sourceforge.net/">NDOC</a> [<a
+href="http://ndoc.sourceforge.net/" target=_blank>^</a>] from the XML
+comments within the source code. The first page of the help file titled
+<b>Usage Notes</b> describes how to install and use the assembly in your own
+projects. Please refer to it for more information.
+
+<p/>The code is written in C#. However, because .NET is language-neutral,
+the assembly is perfectly useable as-is in projects utilizing other
+languages such as VB.NET. The class documentation below presents the
+properties and methods using their C# declarations. The download file
+contains a C# and a VB.NET version of the demonstration application. The
+help file mentioned above shows the class declarations and example code in
+C# and VB.NET.
+
+<a name="UsePgClass"><h3>Using BasePage and Its Derived Classes In Your Own Applications</h3></a>
+<p/>Using the page classes in your own applications is fairly
+straightforward. Just follow these steps:
+
+<ul>
+    <li>If you have not done so already, add a reference to the
+<i>EWSoftware.Web</i> assembly in your project.</li>
+
+    <li>For .NET 1.1 applications, and the necessary settings to your
+<i>Web.config</i> file. See the supplied help file for more information.</li>
+
+    <li>Add a new web form to your project.
+
+    <li>Open the code-behind module for the form.
+
+    <li>Add a <code lang="cs">using EWSoftware.Web;</code> statement to the
+code module (<code lang="vbnet">Imports EWSoftware.Web</code> for VB.NET).
+
+    <li>On the class declaration, replace the reference to
+<code>System.Web.UI.Page</code> as the base class with a reference to one
+of the page classes in the <code>EWSoftware.Web</code> namespace
+(<code>BasePage</code>, <code>RenderedPage</code>, <code>MenuPage</code>,
+or <code>VerticalMenuPage</code>) or one of your own classes derived from
+them.</li>
+
+    <li>Normally, you will add code to the <code>Page_Load</code> event to
+set the page title and other properties and set the initial focus to the
+first control on the page. This should be done only on the initial page
+load and not on postback as other events may have changed the page title or
+set the focus to some other control. For example:
+
+<pre class="cs">
+private void Page_Load(object sender, System.EventArgs e)
+{
+    if(!Page.IsPostBack)
+    {
+        <b>this.PageTitle</b> = "My Page Title";
+        <b>this.PageDescription</b> = "My Test Page";
+        <b>this.Robots</b> = RobotOptions.Index |
+            RobotOptions.Follow;
+        <b>this.SetFocusExtended</b>(txtFirstField);
+
+        ... Do other stuff for initial page load ...
+    }
+}
+</pre></li>
+
+    <li>Return to design view and add controls to the form in the normal
+fashion. </li>
+
+</ul>
+
+<p/>If you decide to make use of the <code>RenderedPage</code> class, you
+will also need to do the following:
+
+<ul>
+    <li>Open the new form in design view and switch to HTML view.
+
+    <li>Delete the <code lang="aspnet">&lt;!DOCTYPE&gt;</code> tag, the
+opening <code lang="aspnet">&lt;html&gt;</code> and closing
+<code lang="aspnet">&lt;/html&gt;</code> tags, the
+<code lang="aspnet">&lt;head&gt;</code> section, and the opening
+<code lang="aspnet">&lt;body&gt;</code> and closing
+<code lang="aspnet">&lt;/body&gt;</code> tags. All that should be present
+in the new page are the <code lang="aspnet">&lt;%@ Page&gt;</code>
+directive, the opening <code lang="aspnet">&lt;form&gt;</code> tag, and the
+closing <code lang="aspnet">&lt;/form&gt;</code> tag.</li>
+
+</ul>
+
+<a name="NoStyles"><h3>No Styles In Design View</h3></a>
+<p/>One problem when using the <code>RenderedPage</code> class and those
+derived from it is that you lose the style settings normally present when
+you have the entire supporting header HTML in the ASPX page. A solution for
+this is to temporarily add a <code lang="aspnet">&lt;link&gt;</code> tag to
+the top of the page that references the application style sheet while you
+are designing the initial layout of the page. Just be sure to remove it
+when you are done designing the page.
+
+<p/>For .NET 2.0, a better solution is to use a master page instead of
+<code>RenderedPage</code>.  This allows you to have the same functionality
+as the <code>RenderedPage</code> class but with a lot more flexibility.
+However, you can still derive your pages from <code>BasePage</code> to gain
+the extra functionality that it provides.
+
+<a name="BasePage"><h2>The BasePage Class</h2></a>
+<p/>This article presents a class called <code>BasePage</code> that is
+derived from <code>System.Web.UI.Page</code>. It can be used as the base
+class for the pages in any ASP.NET application as well as be used to derive
+new classes that contain additional features common to the pages in your
+web application. The <code>BasePage</code> class contains the following
+useful features:
+
+<ul>
+<li>Properties are provided to customize or alter the common header tags if
+necessary (i.e. page title, description, keywords, style sheet, robot
+options, additional header tags, etc).  For the .NET 1.1 version, these
+properties are used by the <code>RenderedPage</code> class.  For the .NET
+2.0 version, they are used by <code>BasePage</code> as long as there is a
+<code>head</code> control with a <code>runat="server"</code> tag.
+
+<li>Properties are provided to more easily allow the insertion of user
+controls and supporting structure into the page's <code>form</code> control
+in classes derived from the <code>BasePage</code> class.
+
+<li>Methods are provided that allow you to enable and disable one or more
+controls in a single call. Support is provided to allow the setting of a
+CSS class to better show the disabled state.
+
+<li>Server-side methods and client-side code are provided to allow you to
+set the focus to any control on the page. The controls can be regular
+controls on the page itself or those embedded in other controls such as
+those in the <code>EditItemTemplate</code> of a <code>DataGrid</code> that
+may not exist until the page is rendered.
+
+<li>For data entry forms, properties and client-side code are provided that
+allow you to automatically track the dirty state of the form. For
+<b>Internet Explorer</b>, the client-side code can also prompt the user to
+save their changes before performing an action such as leaving the page,
+closing the browser, etc. that could cause the loss of their data. This is
+covered in a separate article as noted at the start of this one.
+
+<li>An <code>AuthType</code> property is provided to allow you to get the
+authentication method in effect for the application (Anonymous, Basic,
+NTLM, or Kerberos).
+
+<li>The <code>OnError</code> method is overridden to save more context
+information about the cause of the error to the application cache so that
+it can be passed on to a custom error page. </li>
+</ul>
+
+<a name="EnableDisable"><h3>Enabling and Disabling Form Controls</h3></a>
+<p/>Enabling and disabling controls is a simple matter of setting their
+<code>Enabled</code> property to <code lang="cs">true</code> of <code
+lang="cs">false</code>. However, I have found that the default visual style
+of disabled controls on a web page is sometimes hard to discern from
+enabled controls. As such, I added a property to allow the specification of
+an alternate style that better shows the disabled state. For my own
+applications, I use a CSS style that sets a silver background thus better
+indicating the disabled state much like a Windows Forms application. The
+methods described below make use of this property when disabling controls.
+To save some typing, overloads of the methods are provided that allow you
+to specify a list of two or more controls to enable or disable at once. A
+method is also provided that allows you to enable or disable all controls
+on the page in one call. This is a big time saver when the page contains
+many controls or controls such as panels that contain nested controls.
+
+<ul class=property>
+<li><code lang="cs">public string DisabledCssClass</code>
+<p/>This property is used to get or set the CSS class for disabled
+controls. The CSS class name should appear in the style sheet file
+associated with the application. If not set or set to null, the property
+will use the style name defined by the <code>BasePage.DisabledCssName</code>
+constant. Currently this is set to the style name <b>Disabled</b>.</li>
+</ul>
+
+<ul class=method>
+<li><code lang="cs">public void SetEnabledState(WebControl ctl, bool enabled)</code>
+
+<p/>This method is used to enable or disable a single control. If disabled
+and the control is a <code>TextBox</code>, <code>DropDownList</code>, or
+<code>ListBox</code> (or ones derived from them), it sets the style class
+to the one specified by the <code>DisabledCssClass</code> property.  When
+enabling a control, this method calls the following overload with an empty
+string as the normal style.</li>
+
+<li><code lang="cs">public void SetEnabledState(WebControl ctl, bool enabled, string normalClass)</code>
+
+<p/>This method is the same as the one above but it allows you to specify
+the normal style class name for <code>TextBox</code>es,
+<code>DropDownList</code>s, and <code>ListBox</code>es. It can be used if
+you have explicitly specified a style for the enabled state and need it
+restored when enabling the control. Instead of clearing the style with an
+empty string as in the prior method, you can use this version to replace it
+with the specified style.
+
+<pre lang="cs">
+public void SetEnabledState(WebControl ctl, bool enabled,
+  string normalClass)
+{
+    if(ctl == null)
+        throw new ArgumentNullException("ctl",
+            "The control cannot be null");
+
+    ctl.Enabled = enabled;
+
+    if(ctl is System.Web.UI.WebControls.TextBox ||
+      ctl is System.Web.UI.WebControls.DropDownList ||
+      ctl is System.Web.UI.WebControls.ListBox)
+        if(enabled)
+            ctl.CssClass = normalClass;
+        else
+            ctl.CssClass = this.DisabledCssClass;
+}
+</pre></li>
+
+<li><code lang="cs">public void SetEnabledState(bool enabled, params WebControl[] ctlList)</code>
+
+<p/>This method is used to enable or disable multiple controls in one step.
+Simply pass it the state to set and a list of the controls to enable or
+disable. When disabling a <code>TextBox</code>, <code>DropDownList</code>,
+or <code>ListBox</code> control (or ones derived from them), it sets the
+style class to the one specified by the <code>DisabledCssClass</code>
+property. When enabling such controls, it clears the style class. The code
+is identical to the single control methods above except that it is wrapped
+in a <code lang="cs">foreach</code> loop that iterates over the passed array
+of controls.</li>
+
+<li><code lang="cs">public void SetEnabledState(string normalClass, bool enabled, params WebControl[] ctlList)</code>
+
+<p/>This method is the same as the one above, but it allows you to specify
+the normal style class name for <code>TextBox</code>es,
+<code>DropDownList</code>s, and <code>ListBox</code>es. It can be used if
+you have explicitly specified a style for the enabled state and need it
+restored when enabling the controls.</li>
+
+<li><code lang="cs">public void SetEnabledAll(bool enabled, System.Web.UI.Control ctlPageForm)</code>
+
+<p/>This can be used to disable or enable all edit controls on a web page,
+form, panel, or tab control. The method will call itself recursively if it
+encounters other container controls such as <code>Panel</code>s to enable
+or disable controls contained within them too. Note that buttons and links
+are not disabled by this method as it is quite likely that you will want
+them enabled to perform an action such as exiting the page. If you do want
+certain buttons disabled, you will have to make separate calls to the
+methods above. Since all controls are disabled, the lack of a distinct
+disabled style to distinguish them from enabled controls is not an issue,
+so this method will not alter their style in any way.
+
+<pre lang="cs">
+public void SetEnabledAll(bool enabled, Control ctlPageForm)
+{
+    Control form = null;
+    string controlType;
+
+    // If null, default to the current page
+    if(ctlPageForm == null)
+        ctlPageForm = this.PageForm;
+
+    // Yes, I could add a reference to the MS IE Web
+    // Controls, but I don't want this library to have a
+    // dependency on it so we'll just check for IE Web
+    // Controls by type name string instead.
+    controlType = ctlPageForm.ToString();
+
+    // If passed a form, panel, multi-page, or page view,
+    // use it directly.  If passed a page, see if it
+    // contains a form.  If so, use that form.  If not, use
+    // the page.
+    if(ctlPageForm is System.Web.UI.HtmlControls.HtmlForm ||
+       ctlPageForm is
+         System.Web.UI.WebControls.ContentPlaceHolder ||
+       ctlPageForm is System.Web.UI.WebControls.Panel ||
+       ctlPageForm is System.Web.UI.WebControls.MultiView ||
+       ctlPageForm is System.Web.UI.WebControls.View ||
+       controlType.IndexOf("MultiPage") != -1 ||
+       controlType.IndexOf("PageView") != -1)
+    {
+        form = ctlPageForm;
+    }
+    else
+        if(ctlPageForm is System.Web.UI.Page &amp;&amp;
+          ctlPageForm != this.PageForm)
+            form = BasePage.FindPageForm((Page)ctlPageForm);
+
+    // Ignore anything unexpected
+    if(form == null)
+        return;
+
+    // Disable each edit control on the page
+    foreach(Control ctl in form.Controls)
+        if(ctl is System.Web.UI.WebControls.TextBox ||
+           ctl is System.Web.UI.WebControls.DropDownList ||
+           ctl is System.Web.UI.WebControls.ListBox ||
+           ctl is System.Web.UI.WebControls.CheckBox ||
+           ctl is System.Web.UI.WebControls.CheckBoxList ||
+           ctl is System.Web.UI.WebControls.RadioButton ||
+           ctl is System.Web.UI.WebControls.RadioButtonList)
+            ((WebControl)ctl).Enabled = enabled;
+        else
+        {
+            // As above, done this way to avoid a dependency
+            controlType = ctl.ToString();
+
+            if(ctl is
+                System.Web.UI.WebControls.ContentPlaceHolder ||
+              ctl is System.Web.UI.WebControls.Panel ||
+              ctl is System.Web.UI.WebControls.MultiView ||
+              ctl is System.Web.UI.WebControls.View ||
+              controlType.IndexOf("MultiPage") != -1 ||
+              controlType.IndexOf("PageView") != -1)
+                this.SetEnabledAll(enabled, ctl); // Recursive
+        }
+}
+</pre>
+
+<p/>As seen above, this method is aware of the Microsoft Internet Explorer
+Web Controls <code>MultiPage</code> and <code>PageView</code>, and will
+also enable or disable controls contained within them. Note that there is
+no dependency on that assembly due to the way the support for it has been
+implemented. Instead of checking for a type and creating a dependency on
+the assembly, I chose to check for them by name using a string. This keeps
+the assembly independent of the IE Web Control assembly and does not force
+developers to include it if they do not use it. It can also be extended to
+check for other class names and controls in a similar fashion. The only
+potential drawback is that it is hard coding class names as text strings.
+However, I feel that this is a small price to pay to keep the assembly free
+of dependencies and still provide a very useful service. For more
+information about the Internet Explorer Web Controls, see the <b>Source
+Projects</b> section of <a href="http://www.asp.net/">www.asp.net</a>
+[<a href="http://www.asp.net/" target=_blank>^</a>].</li>
+
+</ul>
+
+<a name="SetFocus"><h3>Setting Control Focus</h3></a>
+<p/>Prior to ASP.NET 2.0, I saw several requests on the newsgroups to
+explain how to set the focus to a control in a web form as the .NET 1.1
+web controls lack any kind of <code>Focus</code> method. The lack of such
+a method makes sense as setting focus is a client-side rather than a
+server-side feature. Setting focus thus falls to the page class itself as
+it must generate client-side script to do it. To remedy the situation,
+<code>BasePage</code> provides two methods to handle this task. However,
+emitting a simple line of JavaScript to call the control's
+<code>focus()</code> method is not enough. The control to focus may be
+embedded within another control such as a <code>DataGrid</code>, and may
+not exist at the time the server-side request to give it focus is made, and
+it may not end up with the expected control ID assigned at design-time. As
+such, the library contains a client-side script module that contains some
+expanded abilities with regard to setting the control focus. It will be
+described shortly. The following are the two class methods that can be used
+to set control focus.  In ASP.NET 2.0, all controls do have a
+<code>Focus</code> method.  In addition, the <code>Page</code> class
+contains two <code>SetFocus</code> methods similar to the two in
+<code>BasePage</code>. To avoid conflicts, the two in <code>BasePage</code>
+are called <code>SetFocusExtended</code>.  The
+<code>SetFocusExtended</code> methods are available for use in .NET 1.1 to
+set the focus to controls and they are available for use in the .NET 2.0
+version in case you need to added capabilities that they provide.
+
+<pre lang="cs">
+/// &lt;summary&gt;
+/// This sets the control that should have the focus when the
+/// page has finished loading by control reference.
+/// &lt;/summary&gt;
+public void SetFocusExtended(WebControl ctl)
+{
+    if(ctl != null)
+    {
+        focusedControl = ctl.ClientID;
+        findControl = false;
+    }
+    else
+        focusedControl = null;
+}
+
+/// &lt;summary&gt;
+/// This sets the control that should have the focus when the
+/// page has finished loading by control ID.
+/// &lt;/summary&gt;
+public void SetFocus(string clientID)
+{
+    focusedControl = clientId;
+    findControl = true;
+}
+</pre>
+
+<p/>Use the first version for controls that are children of the form
+control and are not embedded within other controls such as data grids
+(i.e., they are normal controls that appear on the form itself). The method
+gets the control's client ID and stores it in the private
+<code>focusedCtl</code> variable. The private <code>findCtrl</code>
+variable is set to <code lang="cs">false</code> which is used to tell the
+client-side code to find the control using an exact match on the ID value.
+This will be explained below.
+
+<p/>The second version is passed the control ID to give the focus as a
+<code lang="cs">string</code>, and is useful for setting the focus to a
+control embedded in some other control such as one in a data grid's edit
+item template or a dynamically created control generated and added to the
+form at runtime. In the case of embedded controls, the control or its
+client-side ID does not always exist when you want to set focus to it, so
+this allows it to be set using the design-time control ID. As before, the
+<code>focusedCtrl</code> variable is set to the specified control ID.
+This time however, the <code>findCtrl</code> variable is set to
+<code lang="cs">true</code> which is used to tell the client-side code to
+search for the control that has an ID that ends with the specified ID
+value. Containers such as the <code>DataGrid</code> alter the IDs of the
+controls within them to keep them all unique. As such, the client-side code
+must locate it by searching for the ID ending in the specified value. For
+example, if you place a <code>TextBox</code> in the
+<code>EditItemTemplate</code> and give it an ID of <code>txtName</code>,
+the control ID actually rendered may look something like
+<code>dgGrid:_ctl5:txtName</code>. The client-side code will search all
+controls on the form for the one ending in <code>txtName</code> and will
+give it the focus.
+
+<p/>To clear the focus, pass <code lang="cs">null</code> (<code
+lang="vbnet">Nothing</code> in VB.NET) to either method. Due to the
+overloading, you will need to use a cast when doing so to let the compiler
+pick one version or the other. It does not matter which. For example:
+
+<pre lang="cs">
+// Clear the focus
+this.SetFocus((string)null);
+</pre>
+
+<p/>The <code>OnPreRender()</code> method is overridden to register the
+script module containing the client-side focus code if one of the above
+methods has been called. It generates a line of startup script that calls
+the function in the code module passing the values from the two variables
+noted above as parameters and registers the script with the page. You will
+also see that the set focus code is rendered if the page has any
+validators. This is used to support the
+<code>ConvertValMsgsToLinks()</code> method which is used to convert the
+validator messages displayed in a <code>ValidationSummary</code> control
+into clickable links that can be used to take the user to the field that
+generated the validation error. That method and its related code are
+described in detail in another part in this series that covers the
+<code>PageUtils</code> class. See the table of contents at the start of
+this article for a link to it.
+
+<pre lang="jscript">
+function BP_funSetFocus(strID, bFindCtrl)
+{
+    var nPgIdx, nIdx, nPos, ctl, ctlParent, htmlCol;
+
+    // Do we need to find the control by partial ID?
+    if(bFindCtrl == false)
+    {
+        ctl = document.getElementById(strID);
+
+        // Search for the control if it was found by the
+        // NAME attribute rather than by ID (i.e. the ID
+        // matched a NAME attribute on a META tag).
+        if(ctl != null &amp;&amp; typeof(ctl) != "undefined" &amp;&amp;
+          (typeof(ctl.id) != "string" || ctl.id != strID))
+            bFindCtrl = true;
+    }
+
+    if(bFindCtrl == true)
+    {
+        // True name is unknown.  Find the control ending
+        // with the specified name (i.e. it's embedded in
+        // a data grid).
+        htmlColl = document.getElementsByTagName("*");
+
+        for(nIdx = 0; nIdx &lt; htmlColl.length; nIdx++)
+        {
+            ctl = htmlColl[nIdx];
+            if(typeof(ctl.id) != "undefined")
+            {
+                nPos = ctl.id.indexOf(strID);
+                if(nPos != -1 &amp;&amp; ctl.id.substr(nPos) == strID)
+                    break;
+            }
+            else
+                ctl = null;
+        }
+    }
+
+    // If not found, exit
+    if(ctl == null || typeof(ctl) == "undefined")
+        return false;
+</pre>
+
+<p/>The client-side JavaScript function <code>BP_funSetFocus()</code> is
+passed the control ID to give focus and a Boolean flag indicating whether
+or not it should search for the control by partial name. If the find flag
+is <code lang="jscript">false</code>, it calls
+<code>document.getElementByID()</code> to obtain a reference to the control
+with the specified ID. If <code lang="jscript">true</code>, it will search
+all control elements on the page for one with an ID that ends with the
+specified value. If a control with the specified exact or partial ID cannot
+be found, the function will exit and nothing will happen. If a control is
+found, the following section of code will be executed if it is running on
+Internet Explorer.
+
+<pre lang="jscript">
+// NOTE: This section is IE-specific.
+// See if there is a parent element.  If so, work back up the chain
+// to see if the control is embedded in an PageView IE Web Control.
+// If so, select that page before giving focus to the control.  If
+// not, it may not work as the control may not be visible.
+if(typeof(ctl.parentElement) != "undefined")
+{
+    ctlParent = ctl.parentElement;
+
+    while(ctlParent != null &amp;&amp; ctlParent.tagName != "PageView")
+        ctlParent = ctlParent.parentElement;
+
+    // If found, set the page as the active one in the containing
+    // MultiPage control.
+    if(ctlParent != null &amp;&amp; ctlParent.tagName == "PageView")
+    {
+        nPgIdx = ctlParent.PageIndex;
+        ctlParent = ctlParent.parentElement;
+
+        if(ctlParent != null &amp;&amp; ctlParent.tagName == "MultiPage")
+        {
+            ctlParent.selectedIndex = nPgIdx;
+
+            // We also have to set the index of any TabStrip
+            // associated with the MultiPage.
+            htmlColl = document.getElementsByTagName("TabStrip");
+
+            for(nIdx = 0; nIdx &lt; htmlColl.length; nIdx++)
+                if(htmlColl[nIdx].targetID == ctlParent.id)
+                {
+                    htmlColl[nIdx].selectedIndex = nPgIdx;
+                    break;
+                }
+        }
+    }
+}
+// End IE-specific section
+</pre>
+
+<p/>As noted, the code will check for a parent element. If there is one, it
+works back up the chain to find out if the control is embedded within a
+<code>PageView</code> Internet Explorer Web Control. If it is, it will make
+sure that the correct page view and tab are selected first before giving
+focus to the control. If this were not done, the code would generate an
+error if the currently selected page view were not the one containing the
+control to give focus. I have only been using the Internet Explorer Web
+Controls to provide support for tabbed pages in my applications, so they
+are the only ones of which it is aware. If you are using different tab and
+page view controls, you may be able to modify the section above to detect
+them and provide similar support. For more information about the Internet
+Explorer Web Controls, see the <b>Source Projects</b> section of <a
+href="http://www.asp.net/">www.asp.net</a>
+[<a href="http://www.asp.net/" target=_blank>^</a>].
+
+<pre lang="cs">
+// Focus the control.  If it's a table, we may have been asked to
+// set focus to a radio button or checkbox list.  If so, select
+// the control in the first cell of the table.
+if(ctl.tagName == "TABLE")
+{
+    ctl = ctl.cells(0);
+    ctl = ctl.firstChild;
+}
+
+ctl.focus();
+
+// If it is a textbox-type control, select the text in the control
+if(ctl.type == "text" || ctl.tagName == "TEXTAREA")
+    ctl.select();
+
+return false;
+</pre>
+
+<p/>The final section is what actually gives focus to the control that was
+found in the first step. Radio button and checkbox list controls can
+generate their elements within a table. When asked to set focus to such a
+control on the server-side, you actually end up with a reference to the
+table containing the radio buttons or checkboxes on the client. If left to
+set focus to the table control, it would only work for Internet Explorer,
+but it would only scroll the page to make the table visible on the screen
+and you would not see a focus rectangle around the first checkbox or radio
+button. In Netscape, trying to set focus to a table element just does not
+work. As such, a check is first made to see if the tag name of the found
+control is an HTML table. If so, the control to which the focus is actually
+given is set to the first child of the first cell in the table. Doing this
+allows the focus to get set to an actual radio button or checkbox control,
+which works under both Internet Explorer and Netscape.
+
+<p/>Once the control is given the focus, one final check is made to see if
+the control is a text box or a text area control. If so, the content is
+selected to mimic the behavior used when tabbing into the control. As you
+can see, there is actually a lot more to properly setting the focus to a
+control under all circumstances than originally meets the eye.
+
+<a name="AuthType"><h3>Detecting the Authentication Type</h3></a>
+<p/>The <code>AuthType</code> property was added to the class to allow the
+user to find out what authentication method is being used by the
+application such as Anonymous, Basic, NTLM, or Kerberos.
+
+<pre lang="cs">
+public string AuthType
+{
+    get
+    {
+        // This prevents an exception being reported in
+        // design view.
+        if(this.Context == null)
+            return null;
+
+        // Figure out the authentication type
+        string authType =
+            Request.ServerVariables["AUTH_TYPE"];
+
+        if(authType == "Negotiate")
+        {
+            // Typically, NTLM will yield a header that
+            // is 300 bytes or less while Kerberos is
+            // more like 5000 bytes.  If blank, the best
+            // we can do is return "Negotiate".
+            string authorization =
+                Request.ServerVariables["HTTP_AUTHORIZATION"];
+
+            if(authorization != null)
+                if(authorization.Length > 1000)
+                    authType = "Kerberos";
+                else
+                    authType = "NTLM";
+        }
+        else    // If length != 0, it's probably Basic
+            if(authType.Length == 0)
+                authType = "Anonymous";
+
+        return authType;
+    }
+}
+</pre>
+
+<p/>At work, we implemented Integrated Windows Authentication using
+Kerberos for our intranet applications. This property proved to be quite
+useful in determining whether or not things were working as expected. To
+distinguish between NTLM and Kerberos authentication, it relies on the
+length of the <code>HTTP_AUTHORIZATION</code> server variable. As noted in
+the comments, NTLM headers are much shorter than Kerberos headers. Be aware
+that the <code>HTTP_AUTHORIZATION</code> variable is only available when
+the first page of the application is requested. On all subsequent page
+requests, it is not there so the best it can do is return the supplied
+<code>AUTH_TYPE</code> value of "Negotiate".
+
+<p/>The class also contains a <code>CurrentUser</code> property that can be
+used to get the ID of the authenticated user. It returns the value of the
+<code>User.Identity.Name</code> property without the domain qualifier if
+one is present. For example, if it is MYDOMAIN\EWOODRUFF, this property
+returns EWOODRUFF. This saves you from having to check for and remove it if
+you do not need it.
+
+<a name="OnError"><h3>Enhanced Error Information</h3></a>
+<p/>When errors occur in your application, it is always good to have as
+much information as possible to help you duplicate the problem and find the
+source of the error. The default error page displayed by ASP.NET gives
+basic information about the cause of the error. It also lets you override
+the error handling features and specify a custom error page. There are many
+options available such as writing the information to the event log, writing
+it to a text file on the server, sending it in an e-mail to the developer,
+etc. Doing some things like writing to the event log require special
+permissions on the server. As such, I decided to keep the error handling
+behavior of the <code>BasePage</code> class fairly generic. The decision
+about what to do with the error information is deferred to the custom error
+page. It can be modified based on the application or environment, to log or
+display the information as it sees fit. You may also find that, once
+written, the custom error page can be copied from one application to
+another without change to provide the same error handling methodology in
+all of your applications.
+
+<p/>Normally, detailed error information is not available by the time you
+reach the custom error page. To overcome this limitation, the class
+overrides the <code>OnError</code> method, and simply packages the
+information up and stores it in the application cache. The custom error
+page can then retrieve it and complete its task of reporting the error as
+it sees fit.
+
+<pre lang="cs">
+protected override void OnError(System.EventArgs e)
+{
+    string remoteAddr;
+
+    Hashtable htErrorContext = new Hashtable(5);
+    SortedList slServerVars = new SortedList(9);
+
+    // Extract a subset of the server variables
+    slServerVars["SCRIPT_NAME"] =
+        Request.ServerVariables["SCRIPT_NAME"];
+    slServerVars["HTTP_HOST"] =
+        Request.ServerVariables["HTTP_HOST"];
+    slServerVars["HTTP_USER_AGENT"] =
+        Request.ServerVariables["HTTP_USER_AGENT"];
+    slServerVars["AUTH_TYPE"] = this.AuthType;
+    slServerVars["AUTH_USER"] =
+        Request.ServerVariables["AUTH_USER"];
+    slServerVars["LOGON_USER"] =
+        Request.ServerVariables["LOGON_USER"];
+    slServerVars["SERVER_NAME"] =
+        Request.ServerVariables["SERVER_NAME"];
+    slServerVars["LOCAL_ADDR"] =
+        Request.ServerVariables["LOCAL_ADDR"];
+    remoteAddr = Request.ServerVariables["REMOTE_ADDR"];
+    slServerVars["REMOTE_ADDR"] = remoteAddr;
+
+    // Save the context information
+    htErrorContext["LastError"] =
+        Server.GetLastError().ToString();
+    htErrorContext["ServerVars"] = slServerVars;
+    htErrorContext["QueryString"] = Request.QueryString;
+    htErrorContext["Form"] = Request.Form;
+    htErrorContext["Page"] = Request.Path;
+
+    // Store it in the cache with a short time limit.  The
+    // remote address is used as a key.  We can't use the
+    // session ID or store the info in the session as it's
+    // not always the same session on the error page.
+    Cache.Insert(remoteAddr, htErrorContext,
+        null, DateTime.MaxValue, TimeSpan.FromMinutes(5));
+
+    base.OnError(e);
+}
+</pre>
+
+<p/>The code creates a sorted list to contain several helpful server
+variables such as the authentication method that was in effect, user
+information, server information, and script information. Rather than store
+them all, I have only saved the ones that I have found useful in the past.
+You may wish to add to the list if necessary. The list is stored in a hash
+table along with the last error information, query string, form variables,
+and the page name. In order to pass the information to the custom error
+page, the hash table is stored in the application cache using the remote
+address as the key. A five-minute time limit is applied to the object so
+that it does not stay in the cache for an extended period of time holding
+on to resources unnecessarily. The custom error page can also delete the
+object from the cache once it has retrieved it. This method should work
+well for most applications. Unless you are expecting an extremely large
+number of users and there was an unexpected error that everyone got, it
+should not put much of a load on the server.
+
+<p/>As noted, the error information is not stored in the session, nor does
+it use the session ID as a key. The reason is that on occasions, based on
+my experience, when the error page is reached, the session ID is completely
+different and thus we have no way to retrieve the information. I have
+noticed this most often when an error occurs on the first page loaded for
+the application. By using the application cache and using the remote
+address as the key, we can be sure that the error information is always
+available to the error page when it is reached.
+
+<p/>To get ASP.NET to call your custom error page, you need to modify the
+<code>customErrors</code> tag in the <b>Web.config</b> file so that the
+<code>defaultRedirect</code> attribute points to your error page and the
+<code>mode</code> attribute is set to <code>On</code> or
+<code>RemoteOnly</code>.
+
+<pre lang="html">
+  &lt;system.web&gt;
+    &lt;!--  CUSTOM ERROR MESSAGES
+          Set customErrors mode="On" or "RemoteOnly" to
+          enable custom error messages, "Off" to disable.
+          Add &lt;error&gt; tags for each of the errors
+          you want to handle.
+    --&gt;
+    &lt;customErrors mode="RemoteOnly"
+        defaultRedirect="ErrorPageInternal.aspx" /&gt;
+  &lt;/system.web&gt;
+</pre>
+
+<p/>The demo project in the download file contains an example that displays
+the information retrieved from the application cache after an error occurs.
+
+<a name="RenderedPage"><h2>The RenderedPage Class</h2></a>
+<p/>There have been several articles both here and on several other sites
+that describe the reasons for and various ways to create base page or
+template classes for ASP.NET web forms. As such, I will not rehash that
+information here. Instead, refer to the following Code Project articles for
+more background on why and how to use these methods. The
+<code>RenderedPage</code> class contains my particular implementation, and
+its various features are described in the remainder of this article.
+
+<ul>
+<li><a href="http://www.codeproject.com/aspnet/page_templates.asp">ASP.NET
+Page Templates - Using Inheritance</a> [<a
+href="http://www.codeproject.com/aspnet/page_templates.asp"
+target=_blank>^</a>].
+
+<li><a href="http://www.codeproject.com/aspnet/pagetemplates.asp">Do more
+with your ASP.NET Page Template</a> [<a
+href="http://www.codeproject.com/aspnet/pagetemplates.asp"
+target=_blank>^</a>].</li>
+</ul>
+
+<p/>ASP.NET 2.0 includes a new master page feature that lets you implement
+page templates with much more flexibility.  As such, if you are using
+ASP.NET 2.0, I would recommend using master pages rather than
+<code>RenderedPage</code>.  However, you can still derive your page classes
+from <code>BasePage</code> in order to gain the features described earlier
+and in the other articles in this series and use them in conjunction with
+master pages.
+
+<p/>Note that the .NET 2.0 version of the <code>BasePage</code> class does
+support the use of the <code>PageDescription</code>,
+<code>PageKeywords</code>, <code>PageTitle</code>, and <code>Robots</code>
+properties.  In order to use them, just make sure that your page or master
+page contains a <code>head</code> tag with a <code>runat="server"</code>
+attribute.  When rendered, the class will add the appropriate tags to the
+header control for you.  This allows you to modify them from page to page
+without any extra coding on your part.
+
+<a name="HdrFtr"><h3>Generation of Common Header and Footer Tags</h3></a>
+<p/>The <code>RenderedPage</code> class will render all of the common header
+and footer tags including the <code lang="aspnet">DOCTYPE</code> tag, the
+<code lang="aspnet">html</code> opening and closing tags, the <code
+lang="aspnet">head</code> opening and closing tags, a few common <code
+lang="aspnet">meta</code> tags such as the description, keywords, and robot
+instructions, a <code lang="aspnet">link</code> tag for the style sheet that
+can be defined via the <code>PageStyleSheet</code> property, a <code
+lang="aspnet">title</code> tag containing the page title as set via the
+<code>PageTitle</code> property, and the opening and closing <code
+lang="aspnet">body</code> tags. The <code lang="aspnet">body</code> tag can be
+modified to include a <code>class</code> attribute as defined by the
+<code>PageBodyStyle</code> property to alter the style of the page body. A
+detailed description of each of the rendering methods can be found in the
+supplied help file.
+
+<p/>The <code>Render</code> method is overridden to control the rendering
+process. Unless it is necessary, you should not override this method to
+alter rendering of the page content. Instead, override the following
+virtual methods as needed. <code>OnInit</code> can also be overridden to
+insert controls via the <code>PageForm</code> property. The
+<code>MenuPage</code> class contains an example of that.
+
+<ul class=method>
+<li><code lang="cs">protected virtual void RenderHeader(HtmlTextWriter writer)</code>
+
+<p/>This method is called first to render the common header tags from the
+<code lang="aspnet">DOCTYPE</code> tag through to the opening <code
+lang="aspnet">body</code> tag. The code is simple and uses a
+<code>StringBuilder</code> to generate the HTML to render. The
+<code>StringBuilder</code> is passed to the following method just before
+the closing <code lang="aspnet">head</code> tag is added. The actual content
+of the page as defined in the ASPX file will be rendered immediately after
+the opening <code lang="aspnet">body</code> tag when this method returns to
+the <code>Render</code> method.
+
+<li><code lang="cs">protected virtual void RenderAdditionalHeaderTags(StringBuilder header)</code>
+
+<p/>Override this method in derived classes to add other tags inside the
+<code lang="aspnet">head</code> section (i.e., other <code
+lang="aspnet">meta</code> tags for title, keywords, etc). The base class
+version does nothing. Additional tags generated by this method are inserted
+after the <code lang="aspnet">title</code> tag and just before the closing
+<code lang="aspnet">head</code> tag.
+
+<li><code lang="cs">protected virtual void RenderFooter(HtmlTextWriter writer)</code>
+
+<p/>This method can be overridden by derived classes to add other common
+tags at the end of the body before the closing <code
+lang="aspnet">body</code> tag. If overridden, call the base class method
+after outputting the additional tags unless you are completely replacing
+the rendering process for all of the closing tags normally generated by
+this method.</li></ul>
+
+<a name="AddCtl"><h3>Adding Additional Controls to the Form at Runtime</h3></a>
+<p/>Adding additional controls to the form that are created dynamically at
+runtime is quite simple. The <code>PageForm</code> property is used to
+obtain a reference to the form defined on the page. You can then use the
+<code>Controls</code> property of the <code>Form</code> object to insert
+additional controls anywhere within it. This is usually done in an
+overridden <code>OnInit</code> method. The <code>MenuPage</code> class uses
+this approach to insert the supporting HTML and a user control file to
+create pages with a menu.
+
+<a name="MenuPage"><h3>The MenuPage and VerticalMenuPage Classes</h3></a>
+<p/>The <code>MenuPage</code> class is derived from <code>RenderedPage</code>
+and provides the layout for a page with a simple menu horizontally across
+the top of the page or vertically down the left side of the page. The menu
+is stored in the form of a user control that is loaded by the class at
+runtime and placed into the proper location. The user control can be
+changed using the <code>MenuControlFile</code> property. If not specified,
+it looks for a control by the name of <i>MenuCtrl.ascx</i> by default. Note
+that the class is not intended to compete with some of the more elaborate,
+full-featured menu custom controls that are available. It is just a simple
+class I use to get my applications up and running quickly using ASP.NET 1.0.
+
+<p/>The bulk of the work takes place in the overridden <code>OnInit</code>
+method. Based on the setting of the <code>verticalMenu</code> field, it
+uses the <code>BasePage.PageForm</code> property to insert the HTML for a
+<code>table</code> control around the actual page content within the
+<code>form</code> control.
+
+<pre lang="cs">
+protected override void OnInit(EventArgs e)
+{
+    base.OnInit(e);
+
+    // Insert the table and menu control at the start of
+    // the page.  The layout depends on whether or not
+    // the menu is going to be rendered horizontally at
+    // the top or vertically down the left side of the
+    // page.
+    if(verticalMenu)
+    {
+        this.PageForm.Controls.AddAt(0, new LiteralControl(
+            "&lt;table height='100%' cellpadding='0' " +
+            "width='100%'&gt;\n&lt;tr valign='top'&gt;\n" +
+            "  &lt;td width='15%'&gt;\n"));
+    }
+    else
+    {
+        this.PageForm.Controls.AddAt(0, new LiteralControl(
+            "&lt;table cellpadding='0' width='100%'&gt;\n" +
+            "&lt;tr&gt;\n&lt;td&gt;\n"));
+    }
+
+    if(menuCtrl != null)
+        this.PageForm.Controls.AddAt(1,
+            LoadControl(menuCtrl));
+    else
+        this.PageForm.Controls.AddAt(1, new LiteralControl(
+            "MenuControlFile property not set in derived " +
+            "OnInit!"));
+
+    if(verticalMenu)
+    {
+        this.PageForm.Controls.AddAt(2, new
+            LiteralControl("&lt;/td&gt;&lt;td&gt; &lt;" +
+                "/td&gt;\n&lt;td&gt;\n"));
+
+        // Page content goes in between and this wraps it up
+        this.PageForm.Controls.Add(
+            new LiteralControl("&lt;/td&gt;\n&lt;/tr&gt;\n" +
+                "&lt;/table&gt;\n"));
+    }
+    else    // For horizontal, page is rendered below menu
+        this.PageForm.Controls.AddAt(2,
+            new LiteralControl("&lt;/td&gt;\n&lt;/tr&gt;\n" +
+                "&lt;/table&gt;\n"));
+}
+</pre>
+
+<p/>The <code>VerticalMenuPage</code> class is even simpler and only
+contains a constructor that sets the <code>verticalMenu</code> field to
+<code lang="cs">true</code> so that the menu is rendered vertically by
+default. As noted, they are not the most sophisticated menu classes, but by
+deriving the ASPX pages from either class and creating a menu user control,
+you can get a simple application with a menu up and running in very little
+time.
+
+<a name="Conclude"><h2>Conclusion</h2></a>
+<p/>I have used the <code>BasePage</code> class and a few derived from it
+in all of my ASP.NET applications to give them a consistent look, feel, and
+set of features. Hopefully, you will find this class and the others in the
+library, or parts of them, as useful as I have.
+
+<a name="RevHist"><h2>Revision History</h2></a>
+<table cellspacing="0" cellpadding="0" border="0">
+  <tr>
+    <td valign="top">04/02/2006</td>
+    <td width="50">&nbsp;</td>
+    <td>Non-breaking changes in this release:
+      <ul>
+        <li>The latest version of the JavaScript compressor is being used
+        to further reduce the size of the embedded scripts.</li>
+
+        <li>The .NET 2.0 demos have been reworked to use master pages
+        instead of <code>RenderedPage</code> and <code>MenuPage</code>.</li>
+
+        <li>For the .NET 2.0 version, the method of embedding the script
+        resources was changed to use the .NET 2.0 method so it is no longer
+        necessary to add the <code>httpHandlers</code> section for the
+        <i>EWSoftware.Web.aspx</i> resource page.  As such, this section
+        can be deleted from your <i>Web.config</i> file.</li>
+      </ul>
+
+      <b>Breaking changes:</b>
+      <ul>
+        <li>Significantly modified the <code>BasePage</code> class by splitting out the
+        rendering code to its own derived class (<code>RenderedPage</code>).  This makes
+        it easier to move to .NET 2.0 and use master pages while still
+        retaining the non-rendering related features of the <code>BasePage</code> class
+        (data change checking, etc).</li>
+
+        <li>The <code>EMailPage</code> class has been removed.  The
+        e-mailing functionality has been merged with the
+        <code>BasePage</code> class.  This was necessary in order to move
+        the rendering code into its own derived class.</li>
+
+        <li>Several properties and method names have been modified to
+        conform to the .NET naming conventions with regard to casing
+        (<code>BasePage.BypassPromptIds</code>,
+        <code>BasePage.DisabledCssClass</code>,
+        <code>BasePage.DisabledCssName</code>,
+        <code>BasePage.MsgLinkCssClass</code>,
+        <code>BasePage.MsgLinkCssName</code>,
+        <code>BasePage.SkipDataCheckIds</code>,
+        <code>EMailPageEventArgs.SmtpServer</code>,
+        <code>MenuPage.MenuCtrlFileName</code>,
+        <code>PageUtils.HtmlEncode</code>,
+        <code>RenderedPage.PageBodyCssClass</code>,
+        <code>RenderedPage.CssFileName</code>).</li>
+
+        <li>The <code>BasePage.SetFocus</code> methods have been renamed
+        <code>BasePage.SetFocusExtended</code>. In .NET 2.0, every web
+        control now has a <code>Focus</code> method.  In addition, the
+        standard <code>Page</code> class has two <code>SetFocus</code>
+        methods somewhat equivalent to the old <code>BasePage</code>
+        versions.  The <code>SetFocusExtended</code> methods are available
+        for use in .NET 1.1 to set the focus to controls and they are
+        available for use in the .NET 2.0 version in case you need the added
+        capabilities that they provide.</li>
+
+      </ul></td>
+  </tr>
+  <tr>
+    <td valign="top">11/26/2004</td>
+    <td width="50">&nbsp;</td>
+    <td>Changes in this release:
+      <ul>
+        <li>Removed the hard-coded class name and cell padding from the
+        <b>MenuPage</b> class's generated HTML.  The menu user control should
+        control the style and padding.</li>
+
+        <li>Fixed a bug in BP_funSetFocus() reported by Michael Freidgeim so that
+        it finds controls by ID correctly if the ID happens to match a NAME
+        attribute on a META tag.</li>
+
+        <li>Added <code>RobotOptions</code> enumerated type and a
+        <code>Robots</code> property to <code>BasePage</code> to allow
+        inclusion of a <b>Robots</b> meta tag in the page header.</li>
+
+        <li>Added <code>PageDescription</code> and <code>PageKeywords</code>
+        properties to <code>BasePage</code> to allow inclusion of
+        <b>Description</b> and <b>Keywords</b> meta tags in the page header.</li>
+    </ul></td>
+  </tr>
+  <tr>
+    <td colspan="3">&nbsp;</td>
+  </tr>
+  <tr>
+    <td valign="top">12/01/2003</td>
+    <td width="50">&nbsp;</td>
+    <td>Initial release</td>
+  </tr>
+</table>
+
+<!-------------------------------    That's it!   --------------------------->
+</body>
+</html>

@@ -1,0 +1,624 @@
+<!--------------------------------------------------------------------------->
+<!--                           INTRODUCTION
+
+ The Code Project article submission template (HTML version)
+
+Using this template will help us post your article sooner. To use, just
+follow the 3 easy steps below:
+
+     1. Fill in the article description details
+     2. Add links to your images and downloads
+     3. Include the main article text
+
+That's all there is to it! All formatting will be done by our submission
+scripts and style sheets.
+
+-->
+<!--------------------------------------------------------------------------->
+<!--                        IGNORE THIS SECTION                            -->
+<html>
+<head>
+<title>The Code Project</title>
+<style>
+BODY, P, TD { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt }
+H2,H3,H4,H5 { color: #ff9900; font-weight: bold; }
+H2 { font-size: 13pt; }
+H3 { font-size: 12pt; }
+H4 { font-size: 10pt; color: black; }
+PRE { BACKGROUND-COLOR: #FBEDBB; FONT-FAMILY: "Courier New", Courier, mono; WHITE-SPACE: pre; }
+CODE { COLOR: #990000; FONT-FAMILY: "Courier New", Courier, mono; }
+</style>
+<link rel="stylesheet" type=text/css href="http://www.codeproject.com/styles/global.css">
+</head>
+<body bgcolor="#FFFFFF" color=#000000>
+<!--------------------------------------------------------------------------->
+
+
+<!-------------------------------     STEP 1      --------------------------->
+<!--  Fill in the details (CodeProject will reformat this section for you) -->
+
+<pre>
+Title:       ASP.NET Common Web Page Class Library - Part 3
+Author:      Eric Woodruff
+Email:       Eric@EWoodruff.us
+Environment: Visual Studio .NET, IIS, ASP.NET, C#, VB.NET
+Keywords:    page, template, e-mail, render
+Level:       Intermediate
+Description: An ASP.NET page class that has the ability to e-mail its rendered content
+Section      ASP.NET
+SubSection   General
+</pre>
+
+<!-------------------------------     STEP 2      --------------------------->
+<!--  Include download and sample image information.                       -->
+
+
+<!-------------------------------     STEP 3      --------------------------->
+<!--  Add the article text. Please use simple formatting (<h2>, <p> etc)   -->
+
+<h2>Table of Contents</h2>
+<ul>
+    <li><a href="#Intro">Introduction</a></li>
+    <li><a href="#EMP">The BasePage Class E-Mail Features</a>
+    <ul>
+        <li><a href="#EMPCommon">Two Common Approaches</a></li>
+        <li><a href="#EMPBenefits">The BasePage Class Benefits</a></li>
+    </ul></li>
+    <li><a href="#EMPHow">How It Works</a>
+    <ul>
+        <li><a href="#EMPProp">The EMailRenderedPage Property</a></li>
+        <li><a href="#EMPRender">The Render Method</a></li>
+        <li><a href="#EMPRenderForEMail">The RenderForEMail Method</a></li>
+    </ul></li>
+    <li><a href="#EMPEvents">E-Mail Event Handlers</a>
+    <ul>
+        <li><a href="#EMPEMail">The EMailThisPage Event</a></li>
+        <li><a href="#EMPError">The EMailError Event</a></li>
+        <li><a href="#EMPConnect">Connecting The Event Handlers</a></li>
+    </ul></li>
+    <li><a href="#Conclude">Conclusion</a></li>
+    <li><a href="#RevHist">Revision History</a></li>
+</ul>
+
+<a name="Intro"><h2>Introduction</h2></a>
+<p/>This is the third in a series of articles on a class library for
+ASP.NET applications that I have developed. It contains a set of common,
+reusable page classes that can be utilized in web applications as-is to
+provide a consistent look, feel, and set of features. New classes can also
+be derived from them to extend their capabilities. The features are all
+fairly modular and may be extracted and placed into your own classes too.
+For a complete list of articles in the series along with a demonstration
+application and the code for the classes, see <a href="EWSWebPt1.asp">Part
+1</a>  [<a href="EWSWebPt1.asp" target=_blank>^</a> ].
+
+<p/>For the e-mail part of the demo, you will need the SMTP service on the
+web server or access to a separate SMTP server. The error page demos use an
+e-mail address stored in the <i>Web.config</i> file that is currently set
+to a dummy address. You should modify the address specified by the
+<code>ErrorRptEMail</code> key in the <code>appSettings</code> section to
+make it valid. The e-mail page class can also use an optional configuration
+option to control the name of the SMTP server
+(<code>EMailPage_SmtpServer</code>).
+
+<a name="EMP"><h2>The BasePage Class E-Mail Features</h2></a>
+<p/>This article describes the features of the <code>BasePage</code> class
+that allow it to e-mail its rendered content.  This article will identify
+and describe the added features present in this class.  The class can be
+used as-is, or the functionality can be extracted and added to your own
+page classes.
+
+<a name="EMPCommon"><h3>Two Common Approaches</h3></a>
+<p/>One common approach to e-mailing the rendered content of a page is to
+use the <code>WebRequest</code> and <code>WebResponse</code> objects as
+follows:
+
+<pre lang="cs">
+// Create a request for the page that you want
+WebRequest wreq = System.Net.HttpWebRequest.Create(
+    "http://www.mysite.com/mypage.html");
+
+// Get the response
+WebResponse wrsp = wreq.GetResponse()
+
+// Get the HTML for the page
+StreamReader sr = new StreamReader(wrsp.GetResponseStream())
+string strHTML = sr.ReadToEnd()
+sr.Close()
+
+// Send it by e-mail
+MailMessage msg = new MailMessage();
+msg.From = "Somebody@Domain.com"
+msg.To = "Anyone@Domain.com"
+msg.Subject = "HTML page"
+msg.Body = strHTML;
+msg.BodyFormat = MailFormat.Html;
+SmtpMail.Send(msg);
+</pre>
+
+<p/>Another common approach is to override the page's <code>Render</code>
+event and use code similar to the following:
+
+<pre lang="cs">
+// Create a string builder to contain the HTML
+StringBuilder sb = new StringBuilder();
+HtmlTextWriter htw =
+    new HtmlTextWriter(new StringWriter(sb));
+
+// Render the page to it
+base.Render(htw);
+
+string strHTML = sb.ToString();
+
+// Send it by e-mail
+MailMessage msg = new MailMessage();
+msg.From = "Somebody@Domain.com"
+msg.To = "Anyone@Domain.com"
+msg.Subject = "HTML page"
+msg.Body = strHTML;
+msg.BodyFormat = MailFormat.Html;
+SmtpMail.Send(msg);
+
+// And finally, write the HTML to original writer
+writer.Write(strHTML);
+</pre>
+
+<p/>While these methods work, they do have some limitations:
+<ul>
+    <li>The code must be added to each page that needs it, and they do not
+    provide for easily extending or overriding the behavior of the
+    e-mailing process.
+
+    <li>They may run into difficulties if the page being e-mailed takes
+    parameters via some method other than the query string (i.e., via the
+    page's <code>Context</code> object).
+
+    <li>Any relative URLs in the message body will most likely render as
+    broken links, images, or missing stylesheets when the recipient views
+    the e-mail unless you take steps to fix them up.
+
+    <li>View state is still present in the message body unnecessarily
+    increasing its size.
+
+    <li>Script blocks within the message body are still present and may
+    cause security alerts in the recipient's e-mail client software unless
+    you remove them.</li>
+</ul>
+
+<a name="EMPBenefits"><h3>The BasePage Class Benefits</h3></a>
+<p/>The <code>BasePage</code> class provides the following benefits:
+
+<ul>
+    <li>The e-mailing behavior is built into the page class so that you do
+    not have to write all of the code to do it.
+
+    <li>The e-mailing behavior can be turned on or off using the
+    <code>EMailRenderedPage</code> property. When disabled (the default),
+    the page renders itself to the browser in the normal fashion. When
+    enabled, the page attempts to e-mail a copy of itself in addition to
+    rendering itself to the browser.
+
+    <li>The page raises an event that lets you customize or totally replace
+    the HTML rendered to the client browser as well as the mail message
+    parameters and the HTML content sent as the mail message's body text.
+    This allows you to easily render content for the mail message and then
+    display something totally different to the browser such as a
+    confirmation that the message has been sent.
+
+    <li>The page raises an event if the e-mail cannot be sent thus letting
+    you adjust the HTML rendered to the browser to indicate the problem or
+    to take alternate action. Support is also built in to attempt a retry
+    of the send after making adjustments to the e-mail such as changing the
+    SMTP server used.
+
+    <li>All relative URLs within the mail message body are translated to
+    absolute URLs to prevent broken links when viewed by the recipient.
+
+    <li>The HTML in the mail message body will have the view state removed
+    to reduce its size.
+
+    <li>Script blocks are removed from the mail message body so as not to
+    cause unnecessary warnings from the recipient's e-mail client software.
+
+    <li>Through the use of a custom comment tag, you can have the page
+    remove unwanted sections of the page from the mail message body. This
+    approach can be extended in derived classes to further alter the
+    message body and the HTML rendered to the browser.</li>
+</ul>
+
+<a name="EMPHow"><h2>How It Works</h2></a>
+<p/>The class consists of a property called <code>EMailRenderedPage</code>
+that controls whether or not the page will attempt to e-mail itself,
+an <code>IsRenderingForEMail</code> property that can be checked to see if
+the page is currently in the process of rendering itself in preparation for
+e-mailing, an <code>EMailThisPage</code> event that lets you customize all
+aspects of the e-mail, an <code>EMailError</code> event that lets you handle
+situations in which an error occurs and the e-mail could not be sent, an
+overridden <code>Render</code> method, and a <code>RenderForEMail</code>
+method that makes it all happen.
+
+<a name="EMPProp"><h3>The EMailRenderedPage Property</h3></a>
+<p/>This property is set to <code lang="cs">false</code> by default so that
+the page renders itself to the browser in the normal fashion. You can set
+it to <code lang="cs">true</code> in the constructor, the
+<code>Page_Load</code> event, or an event handler for a derived page, to
+have it attempt to e-mail its rendered content.
+
+<a name="EMPRender"><h3>The Render Method</h3></a>
+<p/>The overridden <code>Render</code> method controls the e-mailing
+process. In all likelihood, you will never override this method. Instead,
+you can control the e-mail details and rendered content by adding handlers
+for the <code>EMailThisPage</code> and the <code>EMailError</code> events.
+Note that the <code>BasePage</code> class's version of this method also
+calls the <code>ConvertValMsgsToLinks</code> method that converts
+validation messages to links.  This is described in
+<a href="EWSWebPt4.asp">part four</a>.  The <code>IsRenderingForEmail</code>
+property is checked to see if we are already rendering for e-mailing.  If
+so, it simply renders the page as normal.  If not, it checks the
+<code>EMailRenderedPage</code> property and, if necessary, calls the
+<code>RenderForEMail</code> method to handle all of the work.
+
+<pre lang="cs">
+protected override void Render(HtmlTextWriter writer)
+{
+    // If already rendering for e-mail, just render the page
+    if(!this.IsRenderingForEMail)
+    {
+        this.ConvertValMsgsToLinks();
+
+        // Rendering normally or going to e-mail?
+        if(this.EMailRenderedPage)
+        {
+            this.RenderForEMail(writer);
+            return;
+        }
+    }
+
+    base.Render(writer);
+}
+</pre>
+
+<a name="EMPRenderForEMail"><h3>The RenderForEMail Method</h3></a>
+This method handles all of the details of rendering the page, e-mailing it,
+and handling any errors that might occur.  Note that the code shown below
+is from the .NET 1.1 version of the class.  The .NET 2.0 version is almost
+identical except for a few minor changes with regard to how the e-mail is
+sent.  In .NET 2.0, it makes use of the new <code>System.Net.Mail</code>
+classes to send the e-mail.
+
+<pre lang="cs">
+protected void RenderForEMail(HtmlTextWriter writer)
+{
+    StringBuilder sb = new StringBuilder();
+    HtmlTextWriter hw = new HtmlTextWriter(
+        new StringWriter(sb, CultureInfo.InvariantCulture));
+
+    try
+    {
+        isRenderingForEMail = true;
+        this.Render(hw);
+    }
+    finally
+    {
+        isRenderingForEMail = false;
+    }
+
+    MailMessage msg = new MailMessage();
+
+    // The string builder contains all of the HTML
+    msg.BodyFormat = MailFormat.Html;
+    msg.Body = sb.ToString();
+
+    EMailPageEventArgs args =
+        new EMailPageEventArgs(msg, this);
+
+    // Get the SMTP server from the Web.config file
+    // if specified
+    args.SmtpServer = ConfigurationSettings.AppSettings[
+        "EMailPage_SmtpServer"];
+
+    // Give the derived page a chance to modify or cancel
+    // the e-mail.
+    this.OnEMailThisPage(args);
+</pre>
+
+<p/>The first thing that occurs is to render the page to a
+<code>StringBuilder</code>.  This is accomplished by setting the
+<code>IsRenderingForEMail</code> property to true and calling the
+<code>Render</code> method again with an HTML text writer that we created
+locally.  Next, a new <code>MailMessage</code> object is created, the
+format is set to HTML, and the rendered content is set as the message body.
+An <code>EMailPageEventArgs</code> object is then created and is sent as
+the parameter for the <code>EmailThisPage</code> event. This will be
+covered shortly.
+
+<pre lang="cs">
+if(args.Cancel == false)
+{
+    // Try sending until it succeeds or told to stop
+    do
+    {
+        try
+        {
+            // Turn off retry so we don't get stuck here.
+            // The error event handler must turn it on if
+            // a retry is wanted.
+            args.RetryOnFailure = false;
+
+            // It has to come from somebody
+            if(msg.From == null || msg.From.Length == 0)
+                throw new ArgumentNullException("From",
+                    "A sender must be specified for " +
+                    "the e-mail message");
+
+            // It has to go to somebody
+            if(msg.To == null || msg.To.Length == 0)
+                throw new ArgumentNullException("To",
+                    "A recipient must be specified for " +
+                    "the e-mail message");
+
+            // Set the server?
+            if(args.SmtpServer != null &&
+              args.SmtpServer.Length != 0)
+                SmtpMail.SmtpServer = args.SmtpServer;
+
+            SmtpMail.Send(msg);
+        }
+        catch(Exception excp)
+        {
+            // Raise an EMailError event if it fails so that
+            // the derived page can take any action it wants
+            // including a retry.
+            EMailErrorEventArgs err = new EMailErrorEventArgs(
+                args, excp);
+            this.OnEMailError(err);
+        }
+
+    } while(args.RetryOnFailure == true);
+}
+
+// And finally, write the HTML to the original writer.
+// It's rendered from the event args in case the handler
+// modified it.
+writer.Write(args.RenderedContent);
+</pre>
+
+<p/>The <code>EMailThisPage</code> event can be cancelled. Whether or not
+the event is cancelled, it renders the content to the browser but does so
+from the event argument class' <code>RenderedContent</code> property rather
+than the <code>StringBuilder</code>. This allows the event handler in the
+derived class to modify the HTML sent to the browser. For example, you may
+want to insert a message above the page content that states that the e-mail
+was sent or why it was not sent.
+
+<p/>If e-mail is to be sent, the method checks to see if an SMTP server has
+been specified in the event arguments by an event handler. If it was, it
+will use this server name when sending the e-mail. This is useful in
+situations where your IIS server is not set up to be an SMTP mail server.
+It also checks to see if sender and recipient e-mail addresses were
+specified. If not, the e-mail cannot be sent and an exception is thrown
+stating that fact.
+
+<p/>If the message is sent successfully, it renders the content to the
+browser and exits as noted above. If there was an error sending the e-mail,
+the method raises the <code>EMailError</code> event to give the derived
+page a chance to handle the error and take alternate action. This will be
+covered shortly. The error event handler also lets you modify the rendered
+content to add additional information as to the cause of the error, or make
+changes and attempt to resend the message.
+
+<a name="EMPEvents"><h2>E-Mail Event Handlers</h2></a>
+<a name="EMPEMail"><h3>The EMailThisPage Event</h3></a>
+<p/>This event is raised whenever the page wants to e-mail its content. You
+should always add a handler for this event so that your page can, at the
+very least, specify the sender and recipient of the e-mail. Without them,
+the e-mail cannot be sent. The event passes a custom event arguments class
+called <code>EMailPageEventArgs</code> that allows the handler to modify
+the e-mailed content, the rendered content, set the SMTP server, or cancel
+the event altogether. In its simplest form, the handler will look something
+like the following. The demo contains some more complex examples.
+
+<pre lang="cs">
+// This event fires when the page is ready to be e-mailed
+void Page_EMailThisPage(Object sender,
+  EWSoftware.Web.EMailPageEventArgs args)
+{
+    // Set the SMTP server if running locally for testing
+    if(Page.Request.ServerVariables["HTTP_HOST"] == "localhost")
+        args.SmtpServer = "REALSMTPSERVER"
+
+    // Set sender, recipient, and subject
+    args.EMail.From = "Somebody@Domain.com"
+    args.EMail.To = "Anyone@Domain.com"
+    args.EMail.Subject = this.PageTitle
+}
+</pre>
+
+<p/>The event argument class' properties and methods are described below.
+
+<ul class=property>
+    <li><code lang="cs">public bool Cancel</code>
+    <p/>This Boolean property can be set to <code lang="cs">true</code> to
+    cancel the event and prevent the content from being e-mailed. If
+    cancelled, the HTML in the <code>RenderedContent</code> property will
+    still be sent to the client's browser. You can replace it with an
+    alternate response if necessary when canceling the e-mail (i.e., to
+    redirect the user to another location, etc.).
+
+    <li><code lang="cs">public string SmtpServer</code>
+    <p/>This property lets you set the SMTP server that should be used when
+    sending the e-mail. It is usually only necessary to set this property
+    if you are running the application on <b>localhost</b> or if your IIS
+    server is not configured with the SMTP service.
+
+    <li><code lang="cs">public MailMessage EMail</code>
+    <p/>This property gives you access to the e-mail message object. Use it
+    to set the sender, recipient, and subject and also to modify the
+    message body. The <code>Body</code> property of the returned
+    <code>MailMessage</code> will contain the HTML that will be sent in the
+    e-mail. You can modify it as needed.
+
+    <li><code lang="cs">public string RenderedContent</code>
+    <p/>This property lets you modify the page content that will be
+    rendered to the client after the e-mail is sent. Use it to alter the
+    content rendered to the client's browser. For example, you may want to
+    remove sections that are not relevant in the displayed content, insert
+    a message telling the user that the message was sent and to whom, or
+    replace the content with something entirely new.
+
+    <li><code lang="cs">public bool RetryOnFailure</code>
+    <p/>This property lets you specify whether the page should retry
+    sending the e-mail if it fails. It is set to <code
+    lang="cs">false</code> by default. It is also set to <code
+    lang="cs">false</code> before each send attempt in order to help
+    prevent an endless loop in case you forget to turn it off. Set this to
+    <code lang="cs">true</code> in the error event handler to have the page
+    retry sending the e-mail based on changes you make to the message
+    properties or the SMTP server property.
+
+    <li><code lang="cs">public int RetryCount</code>
+    <p/>This property can be used to track how many times an attempt to
+    send the e-mail has failed. You can increment it in the error event
+    handler and use its value to determine when to stop trying.</li>
+</ul>
+
+<h3>The Constructors</h3>
+<p/>You will not create an instance of this class yourself. Instead, the
+page's <code>RenderForEMail</code> method does it for you and fills in the
+necessary parameters. When created by the page, the instance will take the
+following steps to alter the e-mail message body and the rendered content.
+
+<ul>
+    <li>The e-mail body is processed to remove any HTML between <code
+    lang="html">&lt;!-- NOEMAIL --&gt;</code> comment tags. This can be
+    used to automatically note sections of the page that should not be
+    included in the e-mail but should be rendered to the browser. The demo
+    contains examples of this.
+
+    <li>Since it serves no purpose, the view state tag is removed from the
+    e-mail body to reduce its size.
+
+    <li>It is a fairly safe assumption that script within an e-mail is
+    frowned upon and most, if not all, e-mail clients will block the script
+    from running to prevent viruses. As such, all script tag blocks are
+    removed from the e-mail body.
+
+    <li>An attempt is made to translate relative URLs to absolute URLs on
+    all occurrences of <code lang="html">src</code> and <code
+    lang="html">href</code> attributes so that links, images, and
+    stylesheets within the page will function as expected when viewed in
+    the e-mail by the recipient. I do not guarantee 100% coverage, but it
+    should catch and translate the vast majority of them.</li>
+</ul>
+
+<a name="EMPError"><h3>The EMailError Event</h3></a>
+<p/>Handling this event is optional. A handler for it can be added if you
+would like to alter the rendered page, take alternate action if the e-mail
+fails to get sent, or make changes and attempt to retry sending the e-mail.
+The event passes a custom event arguments class called
+<code>EMailErrorEventArgs</code> that allows the handler to examine the
+cause of the exception. It is derived from <code>EventArgs</code> and
+contains two properties.
+
+<p/>The first is <code>EMailEventArguments</code> which is a copy of the
+event arguments object sent to the <code>EMailThisPage</code> event. Any
+of the properties described above can be examined or modified. To retry
+sending the e-mail, set the <code>RetryOnFailure</code> property to <code
+lang="cs">true</code>. You can also increment the <code>RetryCount</code>
+property to keep track of how many times you have attempted to resend the
+message.
+
+<p/>The second property in this class is <code>EMailException</code>, which
+returns an <code>Exception</code> object containing the details about the
+problem that was encountered. The demo contains some examples of its use.
+
+<a name="EMPConnect"><h3>Connecting The Event Handlers</h3></a>
+The .NET 1.1 version contains a delegate for both events.  The .NET 2.0
+version of the class makes use of the generic event handler type. As such,
+hooking up the events has a slightly different syntax in the .NET 2.0
+version:
+
+<pre lang="cs">
+// .NET 1.1
+this.EMailThisPage += new EMailThisPageEventHandler(
+    this.Page_EMailThisPage);
+this.EMailError += new EMailErrorEventHandler(
+    this.Page_EMailError);
+
+// .NET 2.0
+this.EMailThisPage += new EventHandler&lt;EMailPageEventArgs&gt;(
+    this.Page_EMailThisPage);
+this.EMailError += new EventHandler&lt;EMailErrorEventArgs&gt;(
+    this.Page_EMailError);
+</pre>
+
+<a name="Conclude"><h2>Conclusion</h2></a>
+<p/>E-mailing the contents of a rendered page is useful in many situations.
+The demo application contains some common usage examples such as for the
+custom error page, user feedback, generating and e-mailing a report, etc.
+By using this class, you can easily add this ability to any web form in
+your application. Hopefully, you will find this class and the others in the
+library, or parts of them, as useful as I have.
+
+<a name="RevHist"><h2>Revision History</h2></a>
+<table cellspacing="0" cellpadding="0" border="0">
+  <tr>
+    <td valign="top">04/02/2006</td>
+    <td width="50">&nbsp;</td>
+    <td><b>Breaking Changes:</b>
+      <ul>
+        <li>The <code>EMailPage</code> class has been removed.  The
+        e-mailing functionality has been merged with the
+        <code>BasePage</code> class.  This was necessary in order to move
+        the rendering code into its own derived class (see part 1 of this
+        series).</li>
+
+        <li>Property and method names have been modified to conform to the
+        .NET naming conventions with regard to casing
+        (<code>EMailPageEventArgs.SmtpServer</code>).</li>
+
+        <li>In the .NET 2.0 version, the <code>EMailThisPageEventHandler</code>
+        and the <code>EMailErrorEventHandler</code> delegates have been
+        removed.  To add event handlers for these two events use the new .NET
+        2.0 EventHandler&lt;&gt; generic type instead.</li>
+      </ul></td>
+  </tr>
+  <tr>
+    <td valign="top">11/26/2004</td>
+    <td width="50">&nbsp;</td>
+    <td>Changes in this release:
+      <ul>
+        <li>Based on a suggestion from shtwang, I have added code to the
+        <code>EMailPage</code> class to retrieve the SMTP server name from
+        the application key <code>EMailPage_SmtpServer</code> in
+        <i>Web.config</i> so that you do not have to set it manually in the
+        event handler unless you want to override it.  If not defined, it
+        stays set to null unless changed in the event handler as
+        before.</li>
+
+        <li>Based on a suggestion from Lynn Evans, I have reworked the
+        <code>EMailPage</code> class to support a retry operation if the
+        initial send fails.  This can be controlled by the new
+        <code>RetryOnFailure</code> and <code>RetryCount</code> properties
+        on the <code>EMailPageEventArgs</code> class.
+
+        <p/><b>NOTE:</b> This introduces breaking changes to the
+        <code>EMailErrorEventArgs</code> class.  It is now derived from
+        <code>EventArgs</code> and contains an
+        <code>EMailEventArguments</code> property that lets you access and
+        modify the e-mail event arguments (i.e. to increment the retry
+        count and specify that it should retry on return, etc).</li>
+      </ul></td>
+  </tr>
+  <tr>
+    <td colspan="3">&nbsp;</td>
+  </tr>
+  <tr>
+    <td valign="top">12/01/2003</td>
+    <td width="50">&nbsp;</td>
+    <td>Initial release</td>
+  </tr>
+</table>
+
+<!-------------------------------    That's it!   --------------------------->
+</body>
+</html>
