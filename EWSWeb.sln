@@ -1,5 +1,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.271
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EWSWeb", "EWSWeb.csproj", "{AF661CFA-F88E-4711-BFC7-98B8BB25603F}"
 EndProject
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "EWSWebDemoVB", "EWSWebDemoVB\", "{503ED08C-82BC-4410-8976-81FE43D0E214}"
@@ -21,6 +23,7 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "EWSWebDemoVB", "EWSWebDemoV
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
 		VWDPort = "59948"
+		SlnRelativePath = "EWSWebDemoVB\"
 	EndProjectSection
 EndProject
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "EWSWebDemoCS", "EWSWebDemoCS\", "{0A7E688F-437A-4BDD-A4F7-4F5757C86452}"
@@ -42,7 +45,10 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "EWSWebDemoCS", "EWSWebDemoC
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
 		VWDPort = "59949"
+		SlnRelativePath = "EWSWebDemoCS\"
 	EndProjectSection
+EndProject
+Project("{7CF6DF6D-3B04-46F8-A40B-537D21BCA0B4}") = "EWSoftwareWeb", "Doc\EWSoftwareWeb.shfbproj", "{434DBD34-9CD9-4F73-B664-A89F32020916}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -84,8 +90,21 @@ Global
 		{0A7E688F-437A-4BDD-A4F7-4F5757C86452}.Release|Any CPU.Build.0 = Debug|Any CPU
 		{0A7E688F-437A-4BDD-A4F7-4F5757C86452}.Release|Mixed Platforms.ActiveCfg = Debug|Any CPU
 		{0A7E688F-437A-4BDD-A4F7-4F5757C86452}.Release|Mixed Platforms.Build.0 = Debug|Any CPU
+		{434DBD34-9CD9-4F73-B664-A89F32020916}.Debug|.NET.ActiveCfg = Debug|Any CPU
+		{434DBD34-9CD9-4F73-B664-A89F32020916}.Debug|.NET.Build.0 = Debug|Any CPU
+		{434DBD34-9CD9-4F73-B664-A89F32020916}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{434DBD34-9CD9-4F73-B664-A89F32020916}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{434DBD34-9CD9-4F73-B664-A89F32020916}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{434DBD34-9CD9-4F73-B664-A89F32020916}.Release|.NET.ActiveCfg = Release|Any CPU
+		{434DBD34-9CD9-4F73-B664-A89F32020916}.Release|.NET.Build.0 = Release|Any CPU
+		{434DBD34-9CD9-4F73-B664-A89F32020916}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{434DBD34-9CD9-4F73-B664-A89F32020916}.Release|Any CPU.Build.0 = Release|Any CPU
+		{434DBD34-9CD9-4F73-B664-A89F32020916}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {10F07D1A-BD31-45D2-BC4C-24BCCAF458B4}
 	EndGlobalSection
 EndGlobal

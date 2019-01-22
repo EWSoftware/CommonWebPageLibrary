@@ -105,10 +105,8 @@
     </Compile>
     <EmbeddedResource Include="Scripts\DataChange.js" />
     <None Include="EWSWeb.snk" />
-    <None Include="ScriptsDev\DataChange.js" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ScriptsDev\SetFocus.js" />
     <EmbeddedResource Include="Scripts\SetFocus.js" />
   </ItemGroup>
   <ItemGroup>
@@ -116,7 +114,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>"$(ProjectDir)JSCompressCL" /$(ConfigurationName) /v /o:"$(ProjectDir)Scripts" "$(ProjectDir)ScriptsDev\*.js"</PreBuildEvent>
+    <PreBuildEvent>
+    </PreBuildEvent>
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>

@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+	<metadata>
+		<id>EWSoftware.Web</id>
+		<version>3.0.0.2</version>
+		<title>EWSoftware Web Library</title>
+		<authors>Eric Woodruff</authors>
+		<owners>Eric Woodruff</owners>
+		<licenseUrl>https://github.com/EWSoftware/CommonWebPageLibrary/blob/master/LICENSE</licenseUrl>
+		<projectUrl>https://github.com/EWSoftware/CommonWebPageLibrary</projectUrl>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<description>This library contains base web page classes and other supporting utility classes.</description>
+		<copyright>Eric Woodruff (c) 2002-2019</copyright>
+		<tags>web page classes</tags>
+	</metadata>
+	<files>
+		<file src="..\bin\Release\*.*" target="lib\net" />
+	</files>
+</package>
