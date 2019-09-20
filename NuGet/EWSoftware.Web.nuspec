@@ -6,7 +6,7 @@
 		<title>EWSoftware Web Library</title>
 		<authors>Eric Woodruff</authors>
 		<owners>Eric Woodruff</owners>
-		<licenseUrl>https://github.com/EWSoftware/CommonWebPageLibrary/blob/master/LICENSE</licenseUrl>
+        <license type="expression">MS-PL</license>
 		<projectUrl>https://github.com/EWSoftware/CommonWebPageLibrary</projectUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>This library contains base web page classes and other supporting utility classes.</description>
